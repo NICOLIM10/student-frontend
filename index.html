@@ -217,11 +217,23 @@
       const tag = document.createElement('span'); tag.className = 'tag'; tag.textContent = `No. ${n}`;
       const h = document.createElement('h3');     h.textContent = r.title;
       const p = document.createElement('p');      p.textContent = r.content;
-      card.append(tag, h, p);
+      const del = document.createElement('button'); del.textContent = 'Delete'; del.className = 'delete-btn';
+      del.addEventListener('click', () => deleteRecord(r._id));
+      card.append(tag, h, p, del);
       container.appendChild(card);
     });
   }
   searchEl.addEventListener('input', () => render(false));
+
+  async function deleteRecord(id) {
+    try {
+      const res = await fetch(`${VERCEL_API_URL}?id=${id}`, { method: 'DELETE' });
+      if (!res.ok) throw new Error(res.status);
+      await loadRecords();
+    } catch (err) {
+      alert('Couldn\'t delete the record. Try again.');
+    }
+  }
 
   async function loadRecords() {
     try {
