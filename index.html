@@ -1,74 +1,263 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Student Database Project</title>
-    <style>
-        body { font-family: Arial, sans-serif; max-width: 600px; margin: 40px auto; padding: 20px; }
-        .card { border: 1px solid #ccc; padding: 15px; margin-bottom: 10px; border-radius: 5px; }
-        input, text-area, button { display: block; width: 100%; margin-bottom: 10px; padding: 8px; }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Student Database Project</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&display=swap" rel="stylesheet">
+<style>
+  /* ---- tokens: graph paper + navy ink + one highlighter ---- */
+  :root {
+    --paper: #eef2f8;
+    --grid: #d9e0ee;
+    --card: #ffffff;
+    --rule: #dfe6f3;      /* notebook ruling inside cards */
+    --ink: #1a2748;
+    --soft: #55638a;
+    --margin: #e5484d;    /* the red margin line */
+    --mark: #ffd23f;      /* highlighter: record tags + primary button */
+    --mark-ink: #1a2748;
+    --shadow: 0 1px 0 rgba(26,39,72,.08), 0 6px 18px -10px rgba(26,39,72,.35);
+    --display: "Bricolage Grotesque", "Avenir Next", system-ui, sans-serif;
+    --body: "Source Serif 4", Georgia, "Times New Roman", serif;
+    --line: 28px;         /* ruling height = line-height, keeps text on the lines */
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --paper: #0d1324;
+      --grid: #172040;
+      --card: #141c33;
+      --rule: #1e2848;
+      --ink: #e7ecfa;
+      --soft: #98a5c7;
+      --margin: #ff6b70;
+      --shadow: 0 1px 0 rgba(0,0,0,.4), 0 8px 20px -10px rgba(0,0,0,.7);
+    }
+  }
+
+  * { box-sizing: border-box; }
+  html { background: var(--paper); }
+  body {
+    margin: 0;
+    color: var(--ink);
+    font: 18px/var(--line) var(--body);
+    /* graph-paper grid behind the whole page */
+    background-image:
+      linear-gradient(var(--grid) 1px, transparent 1px),
+      linear-gradient(90deg, var(--grid) 1px, transparent 1px);
+    background-size: 32px 32px;
+    min-height: 100vh;
+  }
+  main { max-width: 640px; margin: 0 auto; padding: 56px 20px 96px; }
+
+  h1 {
+    font: 800 clamp(2.4rem, 8vw, 3.6rem)/1 var(--display);
+    letter-spacing: -0.035em;
+    margin: 0 0 12px;
+  }
+  .sub { margin: 0 0 40px; color: var(--soft); max-width: 46ch; }
+  h2 { font: 600 1.25rem/1.2 var(--display); margin: 48px 0 16px; }
+  #count { color: var(--soft); font-weight: 400; margin-left: 6px; }
+
+  /* ---- shared "notebook sheet" look for form + record cards ---- */
+  .sheet {
+    position: relative;
+    background-color: var(--card);
+    background-image: repeating-linear-gradient(
+      to bottom, transparent 0 calc(var(--line) - 1px), var(--rule) calc(var(--line) - 1px) var(--line));
+    background-position: 0 14px;
+    border-radius: 6px;
+    box-shadow: var(--shadow);
+    padding: 14px 20px 14px 64px;
+  }
+  .sheet::before { /* red margin line */
+    content: "";
+    position: absolute; top: 0; bottom: 0; left: 44px; width: 2px;
+    background: var(--margin); opacity: .7;
+  }
+
+  /* ---- form ---- */
+  form { display: block; }
+  label { display: block; font: 600 .95rem/var(--line) var(--display); }
+  input, textarea {
+    display: block; width: 100%;
+    font: inherit; color: var(--ink);
+    background: transparent;
+    border: 0; border-bottom: 2px solid transparent;
+    padding: 0; margin: 0 0 var(--line);
+    line-height: var(--line);
+    border-radius: 0;
+  }
+  input:focus, textarea:focus { outline: none; border-bottom-color: var(--ink); }
+  input::placeholder, textarea::placeholder { color: var(--soft); opacity: .7; }
+  textarea { resize: vertical; min-height: calc(var(--line) * 3); background: transparent; }
+
+  button {
+    font: 800 1rem/1 var(--display);
+    color: var(--mark-ink);
+    background: var(--mark);
+    border: 2px solid var(--mark-ink);
+    border-radius: 6px;
+    padding: 12px 20px;
+    cursor: pointer;
+    box-shadow: 3px 3px 0 var(--mark-ink);
+    margin-bottom: 8px;
+  }
+  button:hover { transform: translate(-1px, -1px); box-shadow: 4px 4px 0 var(--mark-ink); }
+  button:active { transform: translate(2px, 2px); box-shadow: 1px 1px 0 var(--mark-ink); }
+  button:disabled { opacity: .6; cursor: progress; transform: none; }
+  :is(input, textarea, button):focus-visible { outline: 3px solid var(--margin); outline-offset: 3px; }
+  @media (prefers-color-scheme: dark) {
+    button { border-color: var(--mark); box-shadow: 3px 3px 0 var(--mark); }
+    button:hover { box-shadow: 4px 4px 0 var(--mark); }
+    button:active { box-shadow: 1px 1px 0 var(--mark); }
+  }
+
+  /* ---- search ---- */
+  .search {
+    display: block; width: 100%;
+    font: 400 1rem/1.4 var(--body);
+    color: var(--ink);
+    background: var(--card);
+    border: 2px solid var(--ink);
+    border-radius: 6px;
+    padding: 11px 14px;
+    margin: 0 0 20px;
+    box-shadow: var(--shadow);
+  }
+  .search::placeholder { color: var(--soft); opacity: .8; }
+  .still .card { animation: none; }  /* no re-animation while typing */
+
+  /* ---- records ---- */
+  .records { display: grid; gap: 20px; }
+  .card h3 { font: 800 1.15rem/var(--line) var(--display); margin: 0; padding-right: 64px; overflow-wrap: anywhere; }
+  .card p { margin: 0; white-space: pre-wrap; overflow-wrap: anywhere; }
+  .tag { /* highlighter tag = record number in the list */
+    position: absolute; top: 14px; right: 14px;
+    background: var(--mark); color: var(--mark-ink);
+    font: 800 .8rem/1 var(--display);
+    padding: 5px 8px; border-radius: 3px;
+    transform: rotate(2deg);
+  }
+  .state { color: var(--soft); text-align: center; padding: 28px 0; }
+  .state.error { color: var(--margin); font-weight: 600; }
+
+  /* single orchestrated moment: new cards settle in */
+  @media (prefers-reduced-motion: no-preference) {
+    .card { animation: settle .35s cubic-bezier(.2,.8,.2,1) both; }
+    @keyframes settle { from { opacity: 0; transform: translateY(8px) rotate(-.6deg); } }
+  }
+  @media (max-width: 480px) {
+    .sheet { padding-left: 52px; }
+    .sheet::before { left: 34px; }
+  }
+</style>
 </head>
 <body>
-    <h2>Add New Record</h2>
-    <form id="dataForm">
-        <input type="text" id="title" placeholder="Record Title" required>
-        <input type="text" id="content" placeholder="Record Content" required>
-        <button type="submit">Submit to Database</button>
-    </form>
+<main>
+  <h1>Student database</h1>
+  <p class="sub">File a new record below. Every record you save is added to the list.</p>
 
-    <h2>Database Records</h2>
-    <div id="recordsContainer">Loading...</div>
+  <form id="dataForm" class="sheet">
+    <label for="title">Title</label>
+    <input type="text" id="title" placeholder="Midterm project" required>
+    <label for="content">Content</label>
+    <textarea id="content" placeholder="Write the details here" required></textarea>
+    <button type="submit" id="submitBtn">Save record</button>
+  </form>
 
-    <script>
-        const VERCEL_API_URL = 'https://student-api-backend-chi.vercel.app/api';
+  <h2>Records<span id="count"></span></h2>
+  <input type="search" id="search" class="search" placeholder="Search titles and content" aria-label="Search records" autocomplete="off">
+  <div id="recordsContainer" class="records" aria-live="polite">
+    <div class="state">Loading records…</div>
+  </div>
+</main>
 
-        async function loadRecords() {
-            try {
-                const response = await fetch(VERCEL_API_URL);
-                const records = await response.json();
+<script>
+  const VERCEL_API_URL = 'https://student-api-backend-chi.vercel.app/api';
+  const container = document.getElementById('recordsContainer');
+  const countEl = document.getElementById('count');
+  const form = document.getElementById('dataForm');
+  const btn = document.getElementById('submitBtn');
 
-                const container = document.getElementById('recordsContainer');
-                container.innerHTML = '';
+  // helper: replace the list with a status message
+  function showState(msg, isError = false) {
+    container.innerHTML = '';
+    const d = document.createElement('div');
+    d.className = 'state' + (isError ? ' error' : '');
+    d.textContent = msg;
+    container.appendChild(d);
+    countEl.textContent = '';
+  }
 
-                if(records.length === 0) {
-                    container.innerHTML = '<p>No records found.</p>';
-                    return;
-                }
+  let allRecords = [];
+  const searchEl = document.getElementById('search');
 
-                records.forEach(record => {
-                    const div = document.createElement('div');
-                    div.className = 'card';
-                    div.innerHTML = `<strong>${record.title}</strong><br>${record.content}`;
-                    container.appendChild(div);
-                });
-            } catch (error) {
-                document.getElementById('recordsContainer').innerText = 'Error loading records.';
-            }
-        }
+  // draw the list, filtered by the search box (case-insensitive, title or content)
+  function render(animate = false) {
+    if (!allRecords.length) return showState('No records yet. Save the first one above.');
 
-        document.getElementById('dataForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
+    const raw = searchEl.value.trim();
+    const q = raw.toLowerCase();
+    const hits = allRecords
+      .map((r, i) => ({ r, n: i + 1 }))   // keep the original No. while filtered
+      .filter(({ r }) => !q || `${r.title} ${r.content}`.toLowerCase().includes(q));
 
-            const title = document.getElementById('title').value;
-            const content = document.getElementById('content').value;
+    if (!hits.length) return showState(`No records match “${raw}”.`);
 
-            try {
-                await fetch(VERCEL_API_URL, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ title, content })
-                });
+    container.classList.toggle('still', !animate);
+    container.innerHTML = '';
+    countEl.textContent = q ? `(${hits.length} of ${allRecords.length})` : `(${allRecords.length})`;
+    hits.forEach(({ r, n }) => {
+      const card = document.createElement('article');
+      card.className = 'card sheet';
+      // textContent only -> user input can't inject markup (XSS-safe)
+      const tag = document.createElement('span'); tag.className = 'tag'; tag.textContent = `No. ${n}`;
+      const h = document.createElement('h3');     h.textContent = r.title;
+      const p = document.createElement('p');      p.textContent = r.content;
+      card.append(tag, h, p);
+      container.appendChild(card);
+    });
+  }
+  searchEl.addEventListener('input', () => render(false));
 
-                document.getElementById('dataForm').reset();
-                loadRecords();
-            } catch (error) {
-                alert('Failed to submit record.');
-            }
-        });
+  async function loadRecords() {
+    try {
+      const res = await fetch(VERCEL_API_URL);
+      if (!res.ok) throw new Error(res.status);   // fetch doesn't throw on 4xx/5xx
+      allRecords = await res.json();
+      render(true);
+    } catch (err) {
+      showState('Couldn’t load records. Check your connection and refresh.', true);
+    }
+  }
 
-        loadRecords();
-    </script>
+  form.addEventListener('submit', async e => {
+    e.preventDefault();
+    const title = document.getElementById('title').value.trim();
+    const content = document.getElementById('content').value.trim();
+    if (!title || !content) return;
+
+    btn.disabled = true; btn.textContent = 'Saving…';
+    try {
+      const res = await fetch(VERCEL_API_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ title, content })
+      });
+      if (!res.ok) throw new Error(res.status);
+      form.reset();
+      await loadRecords();
+    } catch (err) {
+      alert('Couldn’t save the record. Try again.');
+    } finally {
+      btn.disabled = false; btn.textContent = 'Save record';
+    }
+  });
+
+  loadRecords();
+</script>
 </body>
 </html>
