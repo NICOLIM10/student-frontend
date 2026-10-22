@@ -1,31 +1,262 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Daily Attendance</title>
-</head>
-<body>
-  <h1>Daily Attendance</h1>
-  <div id="container">Loading...</div>
-  <script>
-    const API = 'https://student-api-backend-chi.vercel.app/api/attendance';
-    async function load() {
-      try {
-        const res = await fetch(API);
-        const data = await res.json();
-        const c = document.getElementById('container');
-        c.innerHTML = '';
-        data.forEach(r => {
-          const d = document.createElement('div');
-          d.textContent = `${r.name} - ${r.date} - ${r.status}`;
-          c.appendChild(d);
-        });
-      } catch (e) {
-        document.getElementById('container').innerText = 'Error loading attendance.';
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      padding: 30px 16px;
+      font-family: Arial, sans-serif;
+      background: #f3f4f6;
+      color: #1f2937;
+    }
+
+    .container {
+      max-width: 900px;
+      margin: auto;
+      padding: 25px;
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+    }
+
+    h1 {
+      margin-top: 0;
+      color: #1d4ed8;
+    }
+
+    .toolbar {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+
+    input, button {
+      padding: 11px;
+      border-radius: 6px;
+      font-size: 14px;
+    }
+
+    input {
+      flex: 1;
+      min-width: 0;
+      border: 1px solid #d1d5db;
+    }
+
+    button {
+      border: none;
+      background: #2563eb;
+      color: white;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background: #1d4ed8;
+    }
+
+    .table-wrapper {
+      overflow-x: auto;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+    }
+
+    th, td {
+      padding: 12px;
+      text-align: left;
+      border-bottom: 1px solid #e5e7eb;
+    }
+
+    th {
+      background: #eff6ff;
+    }
+
+    .status {
+      font-weight: bold;
+    }
+
+    .message {
+      padding: 15px 0;
+      color: #6b7280;
+    }
+
+    .count {
+      margin-bottom: 12px;
+      color: #4b5563;
+    }
+
+    @media (max-width: 600px) {
+      .container {
+        padding: 16px;
+      }
+
+      .toolbar {
+        flex-direction: column;
       }
     }
-    load();
+  </style>
+</head>
+
+<body>
+  <main class="container">
+    <h1>Daily Attendance</h1>
+    <p>Attendance records from MongoDB Atlas.</p>
+
+    <div class="toolbar">
+      <input
+        type="text"
+        id="search"
+        placeholder="Search name, date, or status..."
+      >
+      <button id="refreshButton" type="button">Refresh</button>
+    </div>
+
+    <div id="count" class="count">Loading records...</div>
+    <div id="message" class="message">Connecting to database...</div>
+
+    <div class="table-wrapper">
+      <table id="attendanceTable" hidden>
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Date</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody id="attendanceBody"></tbody>
+      </table>
+    </div>
+  </main>
+
+  <script>
+    const API =
+      'https://student-api-backend-chi.vercel.app/api/attendance';
+
+    const searchInput = document.getElementById('search');
+    const refreshButton = document.getElementById('refreshButton');
+    const count = document.getElementById('count');
+    const message = document.getElementById('message');
+    const table = document.getElementById('attendanceTable');
+    const tbody = document.getElementById('attendanceBody');
+
+    let attendanceRecords = [];
+
+    function getDate(value) {
+      if (value == null) return '';
+
+      if (value instanceof Object && value.$date) {
+        value = value.$date;
+      }
+
+      if (typeof value === 'object' && value.toString) {
+        value = value.toString();
+      }
+
+      return String(value);
+    }
+
+    function renderRecords() {
+      const searchTerm = searchInput.value.trim().toLowerCase();
+
+      const filtered = attendanceRecords.filter(record => {
+        const name = String(record.name ?? '');
+        const date = getDate(record.date);
+        const status = String(record.status ?? '');
+
+        return `${name} ${date} ${status}`
+          .toLowerCase()
+          .includes(searchTerm);
+      });
+
+      tbody.replaceChildren();
+
+      filtered.forEach(record => {
+        const row = document.createElement('tr');
+
+        const nameCell = document.createElement('td');
+        const dateCell = document.createElement('td');
+        const statusCell = document.createElement('td');
+
+        nameCell.textContent = record.name ?? 'N/A';
+        dateCell.textContent = getDate(record.date) || 'N/A';
+        statusCell.textContent = record.status ?? 'N/A';
+        statusCell.className = 'status';
+
+        row.append(nameCell, dateCell, statusCell);
+        tbody.appendChild(row);
+      });
+
+      count.textContent =
+        `${filtered.length} record(s) displayed`;
+
+      table.hidden = filtered.length === 0;
+
+      if (filtered.length === 0) {
+        message.textContent = attendanceRecords.length === 0
+          ? 'No attendance records found.'
+          : 'No records match your search.';
+        message.hidden = false;
+      } else {
+        message.hidden = true;
+      }
+    }
+
+    async function loadAttendance() {
+      message.hidden = false;
+      message.textContent = 'Loading attendance records...';
+      count.textContent = 'Loading...';
+      table.hidden = true;
+      refreshButton.disabled = true;
+
+      try {
+        const response = await fetch(API, {
+          headers: {
+            Accept: 'application/json'
+          }
+        });
+
+        if (!response.ok) {
+          throw new Error(`API returned HTTP ${response.status}`);
+        }
+
+        const data = await response.json();
+
+        if (!Array.isArray(data)) {
+          throw new Error(
+            data.error || 'The API did not return a JSON array.'
+          );
+        }
+
+        attendanceRecords = data;
+        renderRecords();
+      } catch (error) {
+        console.error('Attendance loading error:', error);
+
+        attendanceRecords = [];
+        count.textContent = 'Unable to load records.';
+        message.hidden = false;
+        message.textContent =
+          'Could not load attendance. Check the API URL, Vercel logs, and MongoDB connection.';
+      } finally {
+        refreshButton.disabled = false;
+      }
+    }
+
+    searchInput.addEventListener('input', renderRecords);
+    refreshButton.addEventListener('click', loadAttendance);
+
+    loadAttendance();
   </script>
 </body>
 </html>
