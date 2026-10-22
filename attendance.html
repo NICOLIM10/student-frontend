@@ -241,7 +241,13 @@
           );
         }
 
-        attendanceRecords = data;
+        const seen = new Set();
+        attendanceRecords = data.filter(r => {
+          const key = `${r.student_id}|${r.date}`;
+          if (seen.has(key)) return false;
+          seen.add(key);
+          return true;
+        });
         renderRecords();
       } catch (error) {
         console.error('Attendance loading error:', error);
