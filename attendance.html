@@ -27,11 +27,21 @@ button:disabled{opacity:.5;cursor:not-allowed}
 .app{max-width:1300px;margin:auto;padding:0 32px}
 
 /* top bar */
-.topbar{display:flex;justify-content:space-between;align-items:flex-start;gap:20px;padding:26px 0 18px;border-bottom:1px solid var(--line)}
+.topbar{display:flex;justify-content:space-between;align-items:center;gap:20px;padding:26px 0 18px;border-bottom:1px solid var(--line)}
 .brand h2{margin:0;font-size:12px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--red-hi)}
 .brand p{margin:5px 0 0;font-size:11px;letter-spacing:.08em;color:var(--muted)}
 .live{display:flex;align-items:center;gap:10px;font-size:11px;letter-spacing:.08em;text-transform:uppercase}
 .live::after{content:"✦";color:var(--red-hi);font-size:14px}
+.topbar-right{display:flex;align-items:center;justify-content:flex-end;flex-wrap:wrap;gap:12px 24px}
+.home-link{
+  display:inline-flex;align-items:center;gap:8px;
+  padding:10px 18px;
+  border:1px solid var(--line2);
+  color:var(--text);text-decoration:none;
+  font-size:11px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;
+  transition:.2s ease;
+}
+.home-link:hover{border-color:var(--red-hi);color:var(--red-hi);transform:translateX(-2px)}
 
 /* hero */
 .hero{position:relative;display:grid;grid-template-columns:1fr 260px;gap:30px;align-items:end;padding:10px 0 46px;overflow:hidden}
@@ -128,6 +138,8 @@ tbody tr:last-child td{border-bottom:0}
 }
 @media(max-width:520px){
   .app{padding:0 14px}
+  .topbar{align-items:flex-start}
+  .live{display:none}
   .stat{padding:14px 8px}
   .stat-value{font-size:30px}
   .stat-label{font-size:9px}
@@ -144,7 +156,6 @@ tbody tr:last-child td{border-bottom:0}
 </style>
 </head>
 <body>
-  <a href="index.html"><button>Home</button></a>
 <main class="app">
 
   <header class="topbar">
@@ -152,7 +163,11 @@ tbody tr:last-child td{border-bottom:0}
       <h2>Attendify</h2>
       <p>Student Management System</p>
     </div>
-    <div class="live">MongoDB Attendance</div>
+
+    <div class="topbar-right">
+      <a class="home-link" href="index.html">← Home</a>
+      <div class="live">MongoDB Attendance</div>
+    </div>
   </header>
 
   <section class="hero">
