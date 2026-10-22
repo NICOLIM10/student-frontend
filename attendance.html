@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Daily Attendance — Francisco Nicolai Lim</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,800&family=Instrument+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  /* same tokens as index.html */
+  :root {
+    --paper:#eef1f6; --card:#ffffff; --line:#cdd5e3; --ink:#0e1a2b; --dim:#51607a;
+    --cobalt:#2349e8; --cobalt-ink:#fff; --mark:#ffd84a; --ok:#1a7f4b; --err:#c93a3a; --warn:#a86a00;
+    --display:"Bricolage Grotesque",system-ui,sans-serif; --body:"Instrument Sans",system-ui,sans-serif;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root { --paper:#0d1422; --card:#142033; --line:#27364f; --ink:#eaf0fb; --dim:#98a7c2;
+            --cobalt:#6f8dff; --cobalt-ink:#0d1422; --ok:#4ade80; --err:#ff7a7a; --warn:#ffc15a; }
+  }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--paper); color:var(--ink); font:400 1rem/1.6 var(--body); }
+  :is(a,button,input,select):focus-visible { outline:3px solid var(--cobalt); outline-offset:3px; }
+  .wrap { max-width:1180px; margin:0 auto; padding:32px 28px 64px; }
+  .top { display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; margin-bottom:32px; }
+  .top a { color:var(--dim); text-decoration:none; font-weight:600; }
+  .top a:hover { color:var(--ink); }
+  h1 { font:800 clamp(2rem,5vw,3.2rem)/1.05 var(--display); letter-spacing:-.03em; margin:0 0 8px; }
+  h1 span { background:linear-gradient(transparent 62%, var(--mark) 62% 92%, transparent 92%); }
+  .sub { color:var(--dim); margin:0 0 28px; }
+
+  .stats { display:flex; flex-wrap:wrap; gap:10px; margin:0 0 24px; }
+  .stat { background:var(--card); border:1px solid var(--line); border-radius:14px; padding:12px 18px; min-width:110px; }
+  .stat b { display:block; font:800 1.7rem/1 var(--display); }
+  .stat span { font-size:.82rem; color:var(--dim); }
+
+  .tools { display:flex; flex-wrap:wrap; gap:10px; margin:0 0 16px; }
+  input, select, .btn { font:inherit; color:var(--ink); background:var(--card); border:1px solid var(--line); border-radius:10px; padding:10px 14px; }
+  input[type=search] { flex:1; min-width:200px; }
+  .btn { font-weight:600; cursor:pointer; border:2px solid var(--ink); background:transparent; }
+  .btn.primary { background:var(--cobalt); border-color:var(--cobalt); color:var(--cobalt-ink); }
+  .btn:disabled { opacity:.6; cursor:progress; }
+
+  .tablebox { background:var(--card); border:1px solid var(--line); border-radius:16px; overflow:auto; max-height:70vh; }
+  table { width:100%; border-collapse:collapse; font-size:.93rem; }
+  th, td { text-align:left; padding:12px 16px; border-bottom:1px solid var(--line); white-space:nowrap; }
+  th { position:sticky; top:0; background:var(--card); font-weight:600; color:var(--dim); cursor:pointer; user-select:none; }
+  th:hover { color:var(--ink); }
+  tbody tr:hover { background:color-mix(in srgb, var(--cobalt) 7%, transparent); }
+  .pill { display:inline-block; padding:2px 10px; border-radius:999px; font-size:.82rem; font-weight:600; border:1px solid currentColor; }
+  .pill.present { color:var(--ok); } .pill.absent { color:var(--err); } .pill.late { color:var(--warn); }
+  .pill.other { color:var(--dim); }
+  #msg { padding:28px; color:var(--dim); }
+  #msg.err { color:var(--err); }
+  .count { color:var(--dim); font-size:.88rem; margin:10px 2px 0; }
+  @media (prefers-reduced-motion: reduce) { * { transition:none !important; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top"><a href="index.html">← Back to portfolio</a></div>
+
+  <h1><span>Daily attendance</span></h1>
+  <p class="sub">Live records from the <code>daily_attendance</code> collection in MongoDB.</p>
+
+  <div class="stats" id="stats"></div>
+
+  <div class="tools">
+    <input type="search" id="q" placeholder="Search any field" aria-label="Search records">
+    <select id="statusFilter" aria-label="Filter by status" hidden></select>
+    <input type="date" id="dateFilter" aria-label="Filter by date" hidden>
+    <button class="btn" id="clear" type="button">Clear filters</button>
+    <button class="btn primary" id="reload" type="button">Refresh</button>
+    <button class="btn" id="csv" type="button">Export CSV</button>
+  </div>
+
+  <div class="tablebox">
+    <table id="tbl" hidden><thead></thead><tbody></tbody></table>
+    <p id="msg" role="status" aria-live="polite">Loading…</p>
+  </div>
+  <p class="count" id="count"></p>
+</div>
+
+<script>
+  // Same Vercel backend as the portfolio. Route must read the daily_attendance collection (see api/daily_attendance.js).
+  const BASE = 'https://student-api-backend-chi.vercel.app/api';
+  const URL_ATT = `${BASE}/daily_attendance`;
+
+  const $ = id => document.getElementById(id);
+  let rows = [], cols = [], sortKey = null, sortDir = 1;
+
+  const HIDE = new Set(['_id', '__v', 'updatedAt']);                    // fields never shown as columns
+  const isDateKey = k => /date|time|createdAt/i.test(k);
+  const isStatusKey = k => /status|remark|attendance$/i.test(k);
+
+  // format ISO date strings; leave everything else as text
+  const fmt = (k, v) => {
+    if (v == null) return '';
+    if (typeof v === 'object') return JSON.stringify(v);
+    if (isDateKey(k) && /^\d{4}-\d{2}-\d{2}T/.test(v)) {
+      const d = new Date(v);
+      return /time|createdAt/i.test(k) ? d.toLocaleString() : d.toLocaleDateString();
+    }
+    return String(v);
+  };
+  const pillClass = v => { v = String(v).toLowerCase();
+    return /present|^p$/.test(v) ? 'present' : /absent|^a$/.test(v) ? 'absent' : /late|tardy/.test(v) ? 'late' : 'other'; };
+  const esc = s => s.replace(/[&<>"]/g, c => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;' }[c]));
+
+  async function load() {
+    $('reload').disabled = true; $('tbl').hidden = true;
+    $('msg').hidden = false; $('msg').className = ''; $('msg').textContent = 'Loading…';
+    try {
+      const res = await fetch(URL_ATT);
+      if (!res.ok) throw new Error(res.status === 404
+        ? 'The /daily_attendance route was not found on the backend. Add api/daily_attendance.js and redeploy.'
+        : `Request failed (${res.status}).`);
+      const data = await res.json();
+      rows = Array.isArray(data) ? data : (data.data || data.records || []);
+      // columns = union of keys across all docs, minus hidden ones
+      cols = [...new Set(rows.flatMap(r => Object.keys(r)))].filter(k => !HIDE.has(k));
+      sortKey = cols.find(isDateKey) || null; sortDir = -1;             // newest first when a date field exists
+      setupFilters(); render();
+    } catch (e) {
+      $('msg').className = 'err'; $('msg').textContent = e.message || 'Could not load attendance.';
+    } finally { $('reload').disabled = false; }
+  }
+
+  function setupFilters() {
+    const sk = cols.find(isStatusKey), dk = cols.find(k => isDateKey(k) && k !== 'createdAt') || cols.find(isDateKey);
+    const sf = $('statusFilter'), df = $('dateFilter');
+    sf.hidden = !sk; df.hidden = !dk;
+    if (sk) {
+      const vals = [...new Set(rows.map(r => r[sk]).filter(Boolean))].sort();
+      sf.innerHTML = '<option value="">All statuses</option>' + vals.map(v => `<option>${esc(String(v))}</option>`).join('');
+    }
+    sf.dataset.key = sk || ''; df.dataset.key = dk || '';
+  }
+
+  function visible() {
+    const q = $('q').value.trim().toLowerCase();
+    const sk = $('statusFilter').dataset.key, sv = $('statusFilter').value;
+    const dk = $('dateFilter').dataset.key, dv = $('dateFilter').value;
+    let out = rows.filter(r => {
+      if (sk && sv && String(r[sk]) !== sv) return false;
+      if (dk && dv && !String(r[dk] ?? '').startsWith(dv) && new Date(r[dk]).toLocaleDateString('en-CA') !== dv) return false;
+      if (q && !cols.some(k => fmt(k, r[k]).toLowerCase().includes(q))) return false;
+      return true;
+    });
+    if (sortKey) out = [...out].sort((a, b) => {
+      const x = a[sortKey] ?? '', y = b[sortKey] ?? '';
+      return (x > y ? 1 : x < y ? -1 : 0) * sortDir;
+    });
+    return out;
+  }
+
+  function render() {
+    const out = visible();
+    const sk = $('statusFilter').dataset.key;
+
+    // summary chips: total + per status value
+    const tally = {};
+    if (sk) out.forEach(r => { const s = r[sk] ?? '—'; tally[s] = (tally[s] || 0) + 1; });
+    $('stats').innerHTML = `<div class="stat"><b>${out.length}</b><span>records</span></div>` +
+      Object.entries(tally).map(([k, n]) => `<div class="stat"><b>${n}</b><span>${esc(String(k))}</span></div>`).join('');
+
+    $('count').textContent = `Showing ${out.length} of ${rows.length}`;
+    if (!rows.length) { $('tbl').hidden = true; $('msg').hidden = false; $('msg').textContent = 'No attendance records yet.'; return; }
+    if (!out.length) { $('tbl').hidden = true; $('msg').hidden = false; $('msg').textContent = 'No records match your filters.'; return; }
+
+    $('msg').hidden = true; $('tbl').hidden = false;
+    $('tbl').tHead.innerHTML = '<tr>' + cols.map(k =>
+      `<th data-k="${esc(k)}" title="Sort">${esc(k)}${k === sortKey ? (sortDir > 0 ? ' ▲' : ' ▼') : ''}</th>`).join('') + '</tr>';
+    $('tbl').tBodies[0].innerHTML = out.map(r => '<tr>' + cols.map(k => {
+      const v = fmt(k, r[k]);
+      return `<td>${isStatusKey(k) && v ? `<span class="pill ${pillClass(v)}">${esc(v)}</span>` : esc(v)}</td>`;
+    }).join('') + '</tr>').join('');
+  }
+
+  function exportCsv() {
+    const out = visible(), q = v => `"${String(v).replace(/"/g, '""')}"`;
+    const csv = [cols.map(q).join(','), ...out.map(r => cols.map(k => q(fmt(k, r[k]))).join(','))].join('\n');
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv' }));
+    a.download = 'daily_attendance.csv'; a.click(); URL.revokeObjectURL(a.href);
+  }
+
+  $('tbl').addEventListener('click', e => {
+    const th = e.target.closest('th'); if (!th) return;
+    sortDir = sortKey === th.dataset.k ? -sortDir : 1; sortKey = th.dataset.k; render();
+  });
+  ['q', 'statusFilter', 'dateFilter'].forEach(id => $(id).addEventListener('input', render));
+  $('clear').onclick = () => { $('q').value = ''; $('statusFilter').value = ''; $('dateFilter').value = ''; render(); };
+  $('reload').onclick = load;
+  $('csv').onclick = exportCsv;
+  load();
+</script>
+</body>
+</html>
