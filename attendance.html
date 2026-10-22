@@ -170,7 +170,7 @@
       const searchTerm = searchInput.value.trim().toLowerCase();
 
       const filtered = attendanceRecords.filter(record => {
-        const name = String(record.name ?? '');
+        const name = String(record.student_name ?? '');
         const date = getDate(record.date);
         const status = String(record.status ?? '');
 
