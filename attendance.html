@@ -4,104 +4,643 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Daily Attendance</title>
+
+  <title>Attendify | Daily Attendance</title>
 
   <style>
+    :root {
+      --bg: #0b1020;
+      --panel: #121a2e;
+      --panel-light: #18233b;
+      --border: #27334c;
+      --text: #eef2ff;
+      --muted: #929fba;
+      --blue: #6c8cff;
+      --purple: #a78bfa;
+      --green: #34d399;
+      --red: #fb7185;
+      --yellow: #fbbf24;
+    }
+
     * {
       box-sizing: border-box;
     }
 
     body {
       margin: 0;
-      padding: 30px 16px;
-      font-family: Arial, sans-serif;
-      background: #f3f4f6;
-      color: #1f2937;
+      min-height: 100vh;
+      font-family: Inter, "Segoe UI", Arial, sans-serif;
+      background:
+        radial-gradient(ellipse at top left, #202d57 0, transparent 38%),
+        radial-gradient(ellipse at bottom right, #2a1947 0, transparent 32%),
+        var(--bg);
+      color: var(--text);
     }
 
-    .container {
-      max-width: 900px;
-      margin: auto;
-      padding: 25px;
-      background: white;
-      border-radius: 12px;
-      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
-    }
-
-    h1 {
-      margin-top: 0;
-      color: #1d4ed8;
-    }
-
-    .toolbar {
-      display: flex;
-      gap: 10px;
-      margin-bottom: 20px;
-    }
-
-    input, button {
-      padding: 11px;
-      border-radius: 6px;
-      font-size: 14px;
-    }
-
-    input {
-      flex: 1;
-      min-width: 0;
-      border: 1px solid #d1d5db;
+    button, input, select {
+      font: inherit;
     }
 
     button {
-      border: none;
-      background: #2563eb;
-      color: white;
       cursor: pointer;
+      transition: 0.2s ease;
     }
 
-    button:hover {
-      background: #1d4ed8;
+    button:disabled {
+      opacity: 0.55;
+      cursor: not-allowed;
+    }
+
+    .app {
+      max-width: 1450px;
+      margin: auto;
+      padding: 30px;
+    }
+
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+      margin-bottom: 35px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 13px;
+    }
+
+    .brand-icon {
+      width: 48px;
+      height: 48px;
+      display: grid;
+      place-items: center;
+      border-radius: 15px;
+      font-size: 24px;
+      background: linear-gradient(135deg, var(--blue), var(--purple));
+      box-shadow: 0 0 28px #6c8cff40;
+    }
+
+    .brand h2 {
+      margin: 0;
+      font-size: 20px;
+      letter-spacing: 0.5px;
+    }
+
+    .brand p {
+      margin: 5px 0 0;
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .live {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 14px;
+      border: 1px solid var(--border);
+      border-radius: 30px;
+      color: var(--green);
+      background: #121a2e;
+      font-size: 12px;
+    }
+
+    .live-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--green);
+      box-shadow: 0 0 10px var(--green);
+    }
+
+    .welcome {
+      margin-bottom: 27px;
+    }
+
+    .welcome .eyebrow {
+      color: var(--purple);
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+    }
+
+    .welcome h1 {
+      margin: 10px 0;
+      font-size: clamp(28px, 4vw, 38px);
+      letter-spacing: -1px;
+    }
+
+    .welcome p {
+      color: var(--muted);
+      margin: 0;
+      line-height: 1.6;
+    }
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 18px;
+      margin-bottom: 25px;
+    }
+
+    .stat-card {
+      position: relative;
+      overflow: hidden;
+      padding: 22px;
+      border: 1px solid var(--border);
+      border-radius: 17px;
+      background: linear-gradient(145deg, #17223b, #11182a);
+    }
+
+    .stat-card::after {
+      content: "";
+      position: absolute;
+      width: 90px;
+      height: 90px;
+      right: -40px;
+      bottom: -45px;
+      border-radius: 50%;
+      background: var(--glow);
+      filter: blur(35px);
+      opacity: 0.35;
+    }
+
+    .stat-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+
+    .stat-label {
+      font-size: 13px;
+      color: var(--muted);
+    }
+
+    .stat-icon {
+      width: 36px;
+      height: 36px;
+      display: grid;
+      place-items: center;
+      border-radius: 11px;
+      background: var(--icon-bg);
+      color: var(--glow);
+    }
+
+    .stat-value {
+      margin-top: 18px;
+      font-size: 32px;
+      font-weight: 750;
+    }
+
+    .stat-note {
+      margin-top: 6px;
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .panel {
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      background: #111a2deF;
+      overflow: hidden;
+      box-shadow: 0 12px 40px #00000015;
+    }
+
+    .panel-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 18px;
+      padding: 24px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .panel-title h2 {
+      margin: 0;
+      font-size: 19px;
+    }
+
+    .panel-title p {
+      margin: 7px 0 0;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 11px 15px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      color: var(--text);
+      background: var(--panel-light);
+      font-size: 13px;
+      font-weight: 600;
+    }
+
+    .btn:hover {
+      border-color: var(--blue);
+      transform: translateY(-1px);
+    }
+
+    .btn-primary {
+      background: linear-gradient(120deg, #5678f8, #8965ec);
+      border-color: transparent;
+      box-shadow: 0 5px 20px #6c8cff25;
+    }
+
+    .btn-primary:hover {
+      background: linear-gradient(120deg, #7090ff, #a184ff);
+    }
+
+    .filters {
+      display: grid;
+      grid-template-columns: minmax(180px, 1fr) 180px;
+      gap: 12px;
+      padding: 20px 24px;
+    }
+
+    .field {
+      width: 100%;
+      min-width: 0;
+      padding: 12px 14px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      outline: none;
+      background: #0d1527;
+      color: var(--text);
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+
+    .field:focus {
+      border-color: var(--blue);
+      box-shadow: 0 0 0 3px #6c8cff18;
+    }
+
+    .field::placeholder {
+      color: #7785a1;
+    }
+
+    select option {
+      background: var(--panel);
     }
 
     .table-wrapper {
+      width: 100%;
       overflow-x: auto;
     }
 
     table {
       width: 100%;
       border-collapse: collapse;
-      margin-top: 10px;
-    }
-
-    th, td {
-      padding: 12px;
-      text-align: left;
-      border-bottom: 1px solid #e5e7eb;
+      white-space: nowrap;
     }
 
     th {
-      background: #eff6ff;
+      padding: 15px 24px;
+      background: #18233a;
+      color: #9eacc8;
+      font-size: 10px;
+      text-align: left;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    td {
+      padding: 17px 24px;
+      border-bottom: 1px solid #243047;
+      font-size: 13px;
+    }
+
+    tbody tr {
+      transition: background 0.2s;
+    }
+
+    tbody tr:hover {
+      background: #1b2740;
+    }
+
+    tbody tr:last-child td {
+      border-bottom: none;
+    }
+
+    .student {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .avatar {
+      width: 38px;
+      height: 38px;
+      display: grid;
+      flex-shrink: 0;
+      place-items: center;
+      border: 1px solid #8298ff45;
+      border-radius: 12px;
+      background: linear-gradient(135deg, #314678, #48366b);
+      color: #dce5ff;
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .student-name {
+      font-weight: 650;
+    }
+
+    .student-id {
+      margin-top: 5px;
+      color: var(--muted);
+      font-size: 11px;
+    }
+
+    .subject-name {
+      max-width: 230px;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
 
     .status {
-      font-weight: bold;
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      padding: 7px 10px;
+      border-radius: 8px;
+      font-size: 11px;
+      font-weight: 700;
     }
 
-    .message {
-      padding: 15px 0;
-      color: #6b7280;
+    .status::before {
+      content: "";
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: currentColor;
     }
 
-    .count {
-      margin-bottom: 12px;
-      color: #4b5563;
+    .present {
+      color: var(--green);
+      background: #34d39915;
     }
 
-    @media (max-width: 600px) {
-      .container {
-        padding: 16px;
+    .absent {
+      color: var(--red);
+      background: #fb718515;
+    }
+
+    .late {
+      color: var(--yellow);
+      background: #fbbf2415;
+    }
+
+    .row-actions {
+      display: flex;
+      gap: 8px;
+    }
+
+    .icon-btn {
+      padding: 8px 10px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background: #1a263d;
+      color: var(--text);
+      font-size: 11px;
+    }
+
+    .icon-btn:hover {
+      border-color: var(--blue);
+    }
+
+    .delete-btn:hover {
+      border-color: var(--red);
+      color: var(--red);
+    }
+
+    .empty {
+      padding: 45px 20px;
+      color: var(--muted);
+      text-align: center;
+      line-height: 1.8;
+    }
+
+    .empty-icon {
+      display: block;
+      margin-bottom: 10px;
+      font-size: 30px;
+    }
+
+    .footer {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 18px 24px;
+      border-top: 1px solid var(--border);
+      color: var(--muted);
+      font-size: 11px;
+    }
+
+    .toast {
+      position: fixed;
+      right: 24px;
+      bottom: 24px;
+      z-index: 20;
+      max-width: calc(100vw - 32px);
+      padding: 15px 19px;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: #1b2942;
+      color: var(--text);
+      box-shadow: 0 12px 35px #0005;
+      opacity: 0;
+      pointer-events: none;
+      transform: translateY(10px);
+      transition: 0.25s;
+    }
+
+    .toast.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .toast.error {
+      border-color: #fb718580;
+    }
+
+    .modal {
+      position: fixed;
+      inset: 0;
+      z-index: 10;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      overflow-y: auto;
+      padding: 20px;
+      background: #050816cc;
+      backdrop-filter: blur(8px);
+    }
+
+    .modal.open {
+      display: flex;
+    }
+
+    .modal-card {
+      width: 100%;
+      max-width: 540px;
+      max-height: calc(100vh - 40px);
+      overflow-y: auto;
+      padding: 25px;
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      background: #121c31;
+      box-shadow: 0 20px 80px #0007;
+    }
+
+    .modal-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 15px;
+      margin-bottom: 23px;
+    }
+
+    .modal-head h2 {
+      margin: 0;
+      font-size: 21px;
+    }
+
+    .close-btn {
+      width: 36px;
+      height: 36px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: var(--panel-light);
+      color: var(--text);
+      font-size: 19px;
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 17px;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .form-group.full {
+      grid-column: 1 / -1;
+    }
+
+    .form-group label {
+      color: #b9c5df;
+      font-size: 12px;
+      font-weight: 600;
+    }
+
+    .modal-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+      margin-top: 25px;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    @media (max-width: 850px) {
+      .app {
+        padding: 20px;
       }
 
-      .toolbar {
+      .stats {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .panel-header {
+        align-items: flex-start;
+      }
+    }
+
+    @media (max-width: 520px) {
+      .app {
+        padding: 14px;
+      }
+
+      .topbar {
+        margin-bottom: 27px;
+      }
+
+      .brand h2 {
+        font-size: 17px;
+      }
+
+      .live {
+        padding: 9px;
+        font-size: 10px;
+      }
+
+      .welcome h1 {
+        font-size: 28px;
+      }
+
+      .stat-card {
+        padding: 15px;
+      }
+
+      .stat-label {
+        font-size: 11px;
+      }
+
+      .stat-value {
+        font-size: 27px;
+      }
+
+      .filters {
+        grid-template-columns: 1fr;
+        padding: 15px;
+      }
+
+      .panel-header {
+        padding: 18px;
+      }
+
+      .actions {
+        width: 100%;
+      }
+
+      .actions .btn {
+        flex: 1;
+      }
+
+      th, td {
+        padding: 14px 16px;
+      }
+
+      .form-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .form-group.full {
+        grid-column: auto;
+      }
+
+      .footer {
         flex-direction: column;
       }
     }
@@ -109,77 +648,341 @@
 </head>
 
 <body>
-  <main class="container">
-    <h1>Daily Attendance</h1>
-    <p>Attendance records from MongoDB Atlas.</p>
+  <main class="app">
 
-    <div class="toolbar">
-      <input
-        type="text"
-        id="search"
-        placeholder="Search name, date, or status..."
-      >
-      <button id="refreshButton" type="button">Refresh</button>
-    </div>
+    <header class="topbar">
+      <div class="brand">
+        <div class="brand-icon">✓</div>
+        <div>
+          <h2>Attendify</h2>
+          <p>STUDENT MANAGEMENT SYSTEM</p>
+        </div>
+      </div>
 
-    <div id="count" class="count">Loading records...</div>
-    <div id="message" class="message">Connecting to database...</div>
+      <div class="live">
+        <span class="live-dot"></span>
+        MongoDB Attendance
+      </div>
+    </header>
 
-    <div class="table-wrapper">
-      <table id="attendanceTable" hidden>
-        <thead>
-          <tr>
-            <th>Name</th>
-            <th>Date</th>
-            <th>Status</th>
-          </tr>
-        </thead>
-        <tbody id="attendanceBody"></tbody>
-      </table>
-    </div>
+    <section class="welcome">
+      <div class="eyebrow">Overview / Attendance</div>
+      <h1>Daily Attendance</h1>
+      <p>Monitor student attendance records in one place.</p>
+    </section>
+
+    <section class="stats">
+      <article class="stat-card" style="--glow:#6c8cff;--icon-bg:#6c8cff18">
+        <div class="stat-top">
+          <span class="stat-label">Total Records</span>
+          <span class="stat-icon">▤</span>
+        </div>
+        <div class="stat-value" id="totalCount">0</div>
+        <div class="stat-note">Attendance entries</div>
+      </article>
+
+      <article class="stat-card" style="--glow:#34d399;--icon-bg:#34d39918">
+        <div class="stat-top">
+          <span class="stat-label">Present</span>
+          <span class="stat-icon">✓</span>
+        </div>
+        <div class="stat-value" id="presentCount">0</div>
+        <div class="stat-note">Marked present</div>
+      </article>
+
+      <article class="stat-card" style="--glow:#fbbf24;--icon-bg:#fbbf2418">
+        <div class="stat-top">
+          <span class="stat-label">Late</span>
+          <span class="stat-icon">◷</span>
+        </div>
+        <div class="stat-value" id="lateCount">0</div>
+        <div class="stat-note">Arrived late</div>
+      </article>
+
+      <article class="stat-card" style="--glow:#fb7185;--icon-bg:#fb718518">
+        <div class="stat-top">
+          <span class="stat-label">Absent</span>
+          <span class="stat-icon">×</span>
+        </div>
+        <div class="stat-value" id="absentCount">0</div>
+        <div class="stat-note">Marked absent</div>
+      </article>
+    </section>
+
+    <section class="panel">
+      <div class="panel-header">
+        <div class="panel-title">
+          <h2>Attendance Records</h2>
+          <p>Search, add, update, and manage attendance.</p>
+        </div>
+
+        <div class="actions">
+          <button class="btn" id="refreshButton" type="button">
+            ↻ Refresh
+          </button>
+
+          <button class="btn btn-primary" id="addButton" type="button">
+            + Add Record
+          </button>
+        </div>
+      </div>
+
+      <div class="filters">
+        <input
+          class="field"
+          id="search"
+          type="search"
+          placeholder="⌕  Search name, ID, subject, section..."
+        >
+
+        <select class="field" id="statusFilter">
+          <option value="">All statuses</option>
+          <option value="Present">Present</option>
+          <option value="Late">Late</option>
+          <option value="Absent">Absent</option>
+        </select>
+      </div>
+
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th>Student</th>
+              <th>Subject</th>
+              <th>Section</th>
+              <th>Date</th>
+              <th>Status</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="attendanceBody"></tbody>
+        </table>
+
+        <div class="empty" id="message">
+          <span class="empty-icon">◌</span>
+          Connecting to MongoDB...
+        </div>
+      </div>
+
+      <div class="footer">
+        <span id="count">Loading records...</span>
+        <span>Attendify · Student Attendance Dashboard</span>
+      </div>
+    </section>
   </main>
 
+  <!-- Add/Edit Modal -->
+  <div class="modal" id="recordModal" role="dialog"
+       aria-modal="true" aria-labelledby="modalTitle">
+    <div class="modal-card">
+      <div class="modal-head">
+        <h2 id="modalTitle">Add Attendance</h2>
+        <button class="close-btn" id="closeModal" type="button"
+                aria-label="Close">×</button>
+      </div>
+
+      <form id="attendanceForm">
+        <div class="form-grid">
+
+          <div class="form-group">
+            <label for="studentId">Student ID</label>
+            <input class="field" id="studentId" required
+                   placeholder="e.g. STU001">
+          </div>
+
+          <div class="form-group">
+            <label for="studentName">Student Name</label>
+            <input class="field" id="studentName" required
+                   placeholder="Full name">
+          </div>
+
+          <div class="form-group full">
+            <label for="subjectName">Subject</label>
+            <input class="field" id="subjectName" required
+                   placeholder="e.g. Database Management Systems">
+          </div>
+
+          <div class="form-group">
+            <label for="section">Section</label>
+            <input class="field" id="section" required
+                   placeholder="e.g. BSIT-3A">
+          </div>
+
+          <div class="form-group">
+            <label for="attendanceDate">Attendance Date</label>
+            <input class="field" id="attendanceDate"
+                   type="date" required>
+          </div>
+
+          <div class="form-group full">
+            <label for="attendanceStatus">Status</label>
+            <select class="field" id="attendanceStatus" required>
+              <option value="Present">Present</option>
+              <option value="Late">Late</option>
+              <option value="Absent">Absent</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="modal-actions">
+          <button class="btn" id="cancelButton" type="button">
+            Cancel
+          </button>
+          <button class="btn btn-primary" id="saveButton" type="submit">
+            Save Record
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
   <script>
+    // Replace this only if your deployed API URL is different.
     const API =
       'https://student-api-backend-chi.vercel.app/api/attendance';
 
-    const searchInput = document.getElementById('search');
-    const refreshButton = document.getElementById('refreshButton');
-    const count = document.getElementById('count');
-    const message = document.getElementById('message');
-    const table = document.getElementById('attendanceTable');
-    const tbody = document.getElementById('attendanceBody');
+    const $ = id => document.getElementById(id);
+
+    const tbody = $('attendanceBody');
+    const message = $('message');
+    const count = $('count');
+    const modal = $('recordModal');
+    const form = $('attendanceForm');
 
     let attendanceRecords = [];
+    let editingId = null;
+    let toastTimer;
 
-    function getDate(value) {
-      if (value == null) return '';
+    async function apiRequest(url, options = {}) {
+      const response = await fetch(url, {
+        ...options,
+        headers: {
+          Accept: 'application/json',
+          ...(options.body ? {
+            'Content-Type': 'application/json'
+          } : {}),
+          ...options.headers
+        }
+      });
 
-      if (value instanceof Object && value.$date) {
+      const text = await response.text();
+      let result = {};
+
+      try {
+        result = text ? JSON.parse(text) : {};
+      } catch {
+        throw new Error(
+          `Invalid API response (HTTP ${response.status}).`
+        );
+      }
+
+      if (!response.ok) {
+        throw new Error(
+          result.error || `Request failed: HTTP ${response.status}`
+        );
+      }
+
+      return result;
+    }
+
+    function showToast(text, isError = false) {
+      const toast = $('toast');
+
+      clearTimeout(toastTimer);
+      toast.textContent = text;
+      toast.classList.toggle('error', isError);
+      toast.classList.add('show');
+
+      toastTimer = setTimeout(() => {
+        toast.classList.remove('show');
+      }, 3000);
+    }
+
+    function getDateValue(value) {
+      if (!value) return '';
+
+      if (typeof value === 'object' && value.$date) {
         value = value.$date;
       }
 
-      if (typeof value === 'object' && value.toString) {
-        value = value.toString();
-      }
+      const date = new Date(value);
 
-      return String(value);
+      if (Number.isNaN(date.getTime())) return '';
+
+      const year = date.getFullYear();
+      const month = String(date.getMonth() + 1).padStart(2, '0');
+      const day = String(date.getDate()).padStart(2, '0');
+
+      return `${year}-${month}-${day}`;
+    }
+
+    function formatDate(value) {
+      const dateValue = getDateValue(value);
+
+      if (!dateValue) return 'N/A';
+
+      const [year, month, day] = dateValue.split('-').map(Number);
+
+      return new Date(year, month - 1, day).toLocaleDateString(
+        'en-PH',
+        {
+          month: 'short',
+          day: 'numeric',
+          year: 'numeric'
+        }
+      );
+    }
+
+    function initials(name) {
+      return String(name || 'NA')
+        .trim()
+        .split(/\s+/)
+        .slice(0, 2)
+        .map(word => word.charAt(0))
+        .join('')
+        .toUpperCase();
+    }
+
+    function updateStatistics() {
+      $('totalCount').textContent = attendanceRecords.length;
+
+      $('presentCount').textContent =
+        attendanceRecords.filter(r => r.status === 'Present').length;
+
+      $('lateCount').textContent =
+        attendanceRecords.filter(r => r.status === 'Late').length;
+
+      $('absentCount').textContent =
+        attendanceRecords.filter(r => r.status === 'Absent').length;
+    }
+
+    function createCell(text, className = '') {
+      const cell = document.createElement('td');
+      cell.textContent = text ?? 'N/A';
+
+      if (className) cell.className = className;
+
+      return cell;
     }
 
     function renderRecords() {
-      const searchTerm = searchInput.value.trim().toLowerCase();
+      const term = $('search').value.trim().toLowerCase();
+      const selectedStatus = $('statusFilter').value;
 
       const filtered = attendanceRecords.filter(record => {
-        const name = String(record.student_name ?? '');
-        const id = String(record.student_id ?? '');
-        const subject = String(record.subject_name ?? '');
-        const section = String(record.section ?? '');
-        const date = getDate(record.date);
-        const status = String(record.status ?? '');
+        const searchable = [
+          record.student_name,
+          record.student_id,
+          record.subject_name,
+          record.section,
+          formatDate(record.date),
+          record.status
+        ].join(' ').toLowerCase();
 
-        return `${name} ${id} ${subject} ${section} ${date} ${status}`
-          .toLowerCase()
-          .includes(searchTerm);
+        return searchable.includes(term) &&
+          (!selectedStatus || record.status === selectedStatus);
       });
 
       tbody.replaceChildren();
@@ -187,92 +990,261 @@
       filtered.forEach(record => {
         const row = document.createElement('tr');
 
-        const nameCell = document.createElement('td');
-        const dateCell = document.createElement('td');
+        // Student name and ID
+        const studentCell = document.createElement('td');
+        const student = document.createElement('div');
+        const avatar = document.createElement('div');
+        const info = document.createElement('div');
+        const name = document.createElement('div');
+        const id = document.createElement('div');
+
+        student.className = 'student';
+        avatar.className = 'avatar';
+        avatar.textContent = initials(record.student_name);
+
+        info.style.minWidth = '0';
+        name.className = 'student-name';
+        name.textContent = record.student_name || 'N/A';
+
+        id.className = 'student-id';
+        id.textContent = record.student_id || 'No student ID';
+
+        info.append(name, id);
+        student.append(avatar, info);
+        studentCell.appendChild(student);
+
+        // Subject
+        const subject = createCell(record.subject_name || 'N/A');
+        subject.className = 'subject-name';
+
+        const section = createCell(record.section || 'N/A');
+        const date = createCell(formatDate(record.date));
+
+        // Status badge
         const statusCell = document.createElement('td');
+        const badge = document.createElement('span');
 
-        nameCell.textContent = record.student_name ?? 'N/A';
-        dateCell.textContent = getDate(record.date) || 'N/A';
-        statusCell.textContent = record.status ?? 'N/A';
-        statusCell.className = 'status';
+        const normalizedStatus = [
+          'Present', 'Absent', 'Late'
+        ].includes(record.status) ? record.status : '';
 
-        const delCell = document.createElement('td');
-        const delBtn = document.createElement('button');
-        delBtn.textContent = 'Delete';
-        delBtn.addEventListener('click', async () => {
-          await fetch(`${API}?id=${record._id}`, { method: 'DELETE' });
-          await loadAttendance();
+        badge.className = 'status ' +
+          (normalizedStatus ? normalizedStatus.toLowerCase() : '');
+
+        badge.textContent = record.status || 'Unknown';
+        statusCell.appendChild(badge);
+
+        // Actions
+        const actionsCell = document.createElement('td');
+        const actions = document.createElement('div');
+
+        actions.className = 'row-actions';
+
+        const editButton = document.createElement('button');
+        editButton.type = 'button';
+        editButton.className = 'icon-btn';
+        editButton.textContent = 'Edit';
+
+        editButton.addEventListener('click', () => {
+          openModal(record);
         });
-        delCell.appendChild(delBtn);
 
-        row.append(nameCell, dateCell, statusCell, delCell);
+        const deleteButton = document.createElement('button');
+        deleteButton.type = 'button';
+        deleteButton.className = 'icon-btn delete-btn';
+        deleteButton.textContent = 'Delete';
+
+        deleteButton.addEventListener('click', async () => {
+          if (!confirm(
+            `Delete attendance for ${record.student_name || 'this student'}?`
+          )) return;
+
+          deleteButton.disabled = true;
+
+          try {
+            await apiRequest(
+              `${API}?id=${encodeURIComponent(record._id)}`,
+              { method: 'DELETE' }
+            );
+
+            showToast('Attendance record deleted.');
+            await loadAttendance(false);
+          } catch (error) {
+            showToast(error.message, true);
+          } finally {
+            deleteButton.disabled = false;
+          }
+        });
+
+        actions.append(editButton, deleteButton);
+        actionsCell.appendChild(actions);
+
+        row.append(
+          studentCell,
+          subject,
+          section,
+          date,
+          statusCell,
+          actionsCell
+        );
+
         tbody.appendChild(row);
       });
 
       count.textContent =
-        `${filtered.length} record(s) displayed`;
+        `${filtered.length} displayed · ${attendanceRecords.length} total records`;
 
-      table.hidden = filtered.length === 0;
+      message.classList.toggle('hidden', filtered.length > 0);
 
       if (filtered.length === 0) {
-        message.textContent = attendanceRecords.length === 0
-          ? 'No attendance records found.'
-          : 'No records match your search.';
-        message.hidden = false;
-      } else {
-        message.hidden = true;
+        message.innerHTML = '';
+
+        const icon = document.createElement('span');
+        icon.className = 'empty-icon';
+        icon.textContent = '⌕';
+
+        const text = document.createElement('div');
+        text.textContent = attendanceRecords.length === 0
+          ? 'No attendance records found. Add your first record.'
+          : 'No records match your search or status filter.';
+
+        message.append(icon, text);
       }
+
+      updateStatistics();
     }
 
-    async function loadAttendance() {
-      message.hidden = false;
-      message.textContent = 'Loading attendance records...';
-      count.textContent = 'Loading...';
-      table.hidden = true;
+    async function loadAttendance(showLoading = true) {
+      const refreshButton = $('refreshButton');
+
       refreshButton.disabled = true;
 
+      if (showLoading) {
+        message.classList.remove('hidden');
+        message.textContent = 'Loading attendance records...';
+      }
+
       try {
-        const response = await fetch(API, {
-          headers: {
-            Accept: 'application/json'
-          }
-        });
-
-        if (!response.ok) {
-          throw new Error(`API returned HTTP ${response.status}`);
-        }
-
-        const data = await response.json();
+        const data = await apiRequest(API);
 
         if (!Array.isArray(data)) {
-          throw new Error(
-            data.error || 'The API did not return a JSON array.'
-          );
+          throw new Error('The API did not return an array of records.');
         }
 
-        const seen = new Set();
-        attendanceRecords = data.filter(r => {
-          const key = `${r.student_id}|${r.date}`;
-          if (seen.has(key)) return false;
-          seen.add(key);
-          return true;
-        });
+        // Keep all records, including records sharing a student/date.
+        attendanceRecords = data;
+
         renderRecords();
       } catch (error) {
         console.error('Attendance loading error:', error);
 
-        attendanceRecords = [];
+        message.classList.remove('hidden');
+        message.textContent = error.message;
         count.textContent = 'Unable to load records.';
-        message.hidden = false;
-        message.textContent =
-          'Could not load attendance. Check the API URL, Vercel logs, and MongoDB connection.';
+
+        showToast(error.message, true);
       } finally {
         refreshButton.disabled = false;
       }
     }
 
-    searchInput.addEventListener('input', renderRecords);
-    refreshButton.addEventListener('click', loadAttendance);
+    function openModal(record = null) {
+      editingId = record ? record._id : null;
+
+      $('modalTitle').textContent = record
+        ? 'Edit Attendance'
+        : 'Add Attendance';
+
+      $('saveButton').textContent = record
+        ? 'Update Record'
+        : 'Save Record';
+
+      $('studentId').value = record?.student_id || '';
+      $('studentName').value = record?.student_name || '';
+      $('subjectName').value = record?.subject_name || '';
+      $('section').value = record?.section || '';
+      $('attendanceDate').value = record
+        ? getDateValue(record.date)
+        : getDateValue(new Date());
+
+      $('attendanceStatus').value = [
+        'Present', 'Late', 'Absent'
+      ].includes(record?.status) ? record.status : 'Present';
+
+      modal.classList.add('open');
+      $('studentId').focus();
+    }
+
+    function closeModal() {
+      modal.classList.remove('open');
+      form.reset();
+      editingId = null;
+    }
+
+    $('addButton').addEventListener('click', () => openModal());
+
+    $('closeModal').addEventListener('click', closeModal);
+    $('cancelButton').addEventListener('click', closeModal);
+
+    modal.addEventListener('click', event => {
+      if (event.target === modal) closeModal();
+    });
+
+    document.addEventListener('keydown', event => {
+      if (event.key === 'Escape') closeModal();
+    });
+
+    $('refreshButton').addEventListener('click', () => {
+      loadAttendance();
+    });
+
+    $('search').addEventListener('input', renderRecords);
+    $('statusFilter').addEventListener('change', renderRecords);
+
+    form.addEventListener('submit', async event => {
+      event.preventDefault();
+
+      const saveButton = $('saveButton');
+      saveButton.disabled = true;
+
+      const payload = {
+        student_id: $('studentId').value.trim(),
+        student_name: $('studentName').value.trim(),
+        subject_name: $('subjectName').value.trim(),
+        section: $('section').value.trim(),
+        date: $('attendanceDate').value,
+        status: $('attendanceStatus').value
+      };
+
+      try {
+        if (editingId) {
+          await apiRequest(
+            `${API}?id=${encodeURIComponent(editingId)}`,
+            {
+              method: 'PUT',
+              body: JSON.stringify(payload)
+            }
+          );
+
+          showToast('Attendance record updated.');
+        } else {
+          await apiRequest(API, {
+            method: 'POST',
+            body: JSON.stringify(payload)
+          });
+
+          showToast('Attendance record added.');
+        }
+
+        closeModal();
+        await loadAttendance(false);
+      } catch (error) {
+        console.error('Attendance save error:', error);
+        showToast(error.message, true);
+      } finally {
+        saveButton.disabled = false;
+      }
+    });
 
     loadAttendance();
   </script>
