@@ -6,317 +6,333 @@
 <title>Francisco Nicolai Lim — IT Student &amp; Web Developer</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,800&family=Instrument+Sans:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
+  /* ---------- tokens: cool paper + ink navy, cobalt for actions, yellow for marks ---------- */
   :root {
-    --bg:#0b0b0d; --panel:#141417; --line:#26262c;
-    --text:#f1ece2; --dim:#9a968c; --accent:#ffb000; --accent-ink:#0b0b0d;
-    --serif:"Fraunces",Georgia,serif;
-    --mono:"JetBrains Mono",ui-monospace,Menlo,Consolas,monospace;
+    --paper:#eef1f6; --card:#ffffff; --line:#cdd5e3;
+    --ink:#0e1a2b; --dim:#51607a;
+    --cobalt:#2349e8; --cobalt-ink:#ffffff; --mark:#ffd84a;
+    --ok:#1a7f4b; --err:#c93a3a;
+    --display:"Bricolage Grotesque",system-ui,sans-serif;
+    --body:"Instrument Sans",system-ui,sans-serif;
   }
-  @media (prefers-color-scheme: light) {
-    :root { --bg:#f6f2ea; --panel:#fffdf8; --line:#ddd6c8; --text:#17161a; --dim:#6b675d; --accent:#d98900; --accent-ink:#fff; }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --paper:#0d1422; --card:#142033; --line:#27364f;
+      --ink:#eaf0fb; --dim:#98a7c2;
+      --cobalt:#6f8dff; --cobalt-ink:#0d1422; --mark:#ffd84a;
+      --ok:#4ade80; --err:#ff7a7a;
+    }
   }
   * { box-sizing:border-box; }
-  html { scroll-behavior:smooth; background:var(--bg); }
-  body { margin:0; background:var(--bg); color:var(--text); font:16px/1.65 var(--mono); }
+  html { scroll-behavior:smooth; background:var(--paper); }
+  body { margin:0; background:var(--paper); color:var(--ink); font:400 1rem/1.7 var(--body); }
   a { color:inherit; }
-  .wrap { max-width:1040px; margin:0 auto; padding:0 24px; }
-  section { padding:88px 0 0; scroll-margin-top:60px; }
-  :is(a,button,input,textarea):focus-visible { outline:2px solid var(--accent); outline-offset:3px; }
-  .eyebrow { color:var(--accent); font-size:.8rem; letter-spacing:.14em; text-transform:uppercase; margin:0 0 12px; }
-  h2 { font:800 clamp(1.8rem,4.5vw,2.6rem)/1.1 var(--serif); letter-spacing:-.02em; margin:0 0 32px; }
+  :is(a,button,input,textarea):focus-visible { outline:3px solid var(--cobalt); outline-offset:3px; }
+  h1,h2,h3 { font-family:var(--display); margin:0; letter-spacing:-.02em; line-height:1.1; }
+  h2 { font-size:clamp(1.9rem,4vw,2.6rem); font-weight:800; margin-bottom:28px; }
+  /* yellow highlighter used once per section heading, nowhere else */
+  h2 span { background:linear-gradient(transparent 62%, var(--mark) 62% 92%, transparent 92%); }
 
-  header.bar { position:sticky; top:0; z-index:10; background:color-mix(in srgb,var(--bg) 85%,transparent); backdrop-filter:blur(10px); border-bottom:1px solid var(--line); }
-  .bar .wrap { display:flex; align-items:center; justify-content:space-between; height:56px; }
-  .logo { font:800 1.1rem var(--serif); text-decoration:none; }
-  .logo b { color:var(--accent); }
-  .bar nav { display:flex; gap:24px; font-size:.85rem; }
-  .bar nav a { text-decoration:none; color:var(--dim); }
-  .bar nav a:hover { color:var(--text); }
-  @media (max-width:560px) { .bar nav a:not(:last-child) { display:none; } }
+  /* ---------- layout: sticky identity rail + scrolling content ---------- */
+  .shell { max-width:1180px; margin:0 auto; display:grid; grid-template-columns:340px 1fr; gap:64px; padding:0 28px; }
+  .rail { position:sticky; top:0; align-self:start; height:100vh; padding:40px 0; display:flex; flex-direction:column; gap:22px; overflow:auto; }
+  .content { padding:40px 0 0; min-width:0; }
+  section { padding:0 0 96px; scroll-margin-top:32px; }
 
-  .hero { display:grid; grid-template-columns:1.4fr 1fr; gap:48px; align-items:center; padding-top:72px; }
-  .hero h1 { font:800 clamp(2.8rem,8vw,5.2rem)/.98 var(--serif); letter-spacing:-.04em; margin:0 0 20px; }
-  .hero h1 em { font-style:normal; color:var(--accent); }
-  .hero p.lead { color:var(--dim); max-width:46ch; margin:0 0 28px; }
+  /* ---------- photo: put photo.jpg next to this file; initials show if missing ---------- */
+  .photo { position:relative; aspect-ratio:4/5; border-radius:28px 28px 28px 6px; overflow:hidden; background:var(--cobalt); border:1px solid var(--line); }
+  .photo img { position:absolute; inset:0; width:100%; height:100%; object-fit:cover; display:block; }
+  .photo .initials { position:absolute; inset:0; display:grid; place-items:center; font:800 6rem var(--display); color:var(--cobalt-ink); }
+  .photo img[hidden] { display:none; }
+
+  .who h1 { font-size:1.9rem; font-weight:800; }
+  .who p { margin:6px 0 0; color:var(--dim); font-size:.95rem; }
+  .rail nav { display:flex; flex-direction:column; gap:2px; }
+  .rail nav a { text-decoration:none; color:var(--dim); padding:6px 0 6px 14px; border-left:2px solid var(--line); font-weight:500; }
+  .rail nav a:hover, .rail nav a.on { color:var(--ink); border-left-color:var(--cobalt); }
+  .rail .avail { margin-top:auto; font-size:.85rem; color:var(--dim); display:flex; align-items:center; gap:8px; }
+  .rail .avail::before { content:""; width:9px; height:9px; border-radius:50%; background:var(--ok); }
+
+  /* ---------- intro ---------- */
+  .intro { padding:16px 0 96px; }
+  .intro h1 { font-size:clamp(2.6rem,6.5vw,4.8rem); font-weight:800; letter-spacing:-.035em; max-width:14ch; }
+  .intro p { color:var(--dim); font-size:1.1rem; max-width:52ch; margin:22px 0 30px; }
   .cta { display:flex; gap:12px; flex-wrap:wrap; }
-  .btn { display:inline-block; font:600 .9rem var(--mono); padding:13px 22px; border-radius:999px; text-decoration:none; border:1px solid var(--line); background:transparent; color:var(--text); cursor:pointer; }
-  .btn.primary { background:var(--accent); border-color:var(--accent); color:var(--accent-ink); }
-  .btn:hover { transform:translateY(-2px); }
-  .btn:disabled { opacity:.6; cursor:progress; transform:none; }
-  .portrait { position:relative; aspect-ratio:1; border-radius:24px; overflow:hidden; border:1px solid var(--line); background:var(--panel); }
-  .portrait svg { width:100%; height:100%; display:block; }
-  .badge { position:absolute; left:14px; bottom:14px; background:var(--bg); border:1px solid var(--line); border-radius:999px; padding:6px 12px; font-size:.75rem; }
-  .badge::before { content:""; display:inline-block; width:8px; height:8px; border-radius:50%; background:#3ddc84; margin-right:8px; }
-  @media (max-width:760px) { .hero { grid-template-columns:1fr; } .portrait { max-width:320px; } }
+  .btn { display:inline-block; font:600 .95rem var(--body); padding:13px 24px; border-radius:12px; text-decoration:none; border:2px solid var(--ink); background:transparent; color:var(--ink); cursor:pointer; }
+  .btn.primary { background:var(--cobalt); border-color:var(--cobalt); color:var(--cobalt-ink); }
+  .btn:disabled { opacity:.6; cursor:progress; }
 
-  .stats { display:grid; grid-template-columns:repeat(4,1fr); gap:1px; background:var(--line); border:1px solid var(--line); border-radius:16px; overflow:hidden; margin-top:64px; }
-  .stats div { background:var(--panel); padding:22px 20px; }
-  .stats strong { display:block; font:800 2rem/1 var(--serif); color:var(--accent); }
-  .stats span { font-size:.8rem; color:var(--dim); }
-  @media (max-width:640px) { .stats { grid-template-columns:repeat(2,1fr); } }
-
-  .about { display:grid; grid-template-columns:1.3fr 1fr; gap:48px; }
-  .about p { margin:0 0 18px; color:var(--dim); }
-  .about p:first-child { color:var(--text); font:500 1.25rem/1.5 var(--serif); }
-  .facts { list-style:none; margin:0; padding:0; border-top:1px solid var(--line); }
-  .facts li { display:flex; justify-content:space-between; gap:16px; padding:14px 0; border-bottom:1px solid var(--line); font-size:.88rem; }
+  /* ---------- about ---------- */
+  .about p { max-width:62ch; color:var(--dim); margin:0 0 16px; }
+  .about p:first-of-type { color:var(--ink); font-size:1.2rem; }
+  .facts { margin:28px 0 0; padding:0; list-style:none; border-top:1px solid var(--line); max-width:62ch; }
+  .facts li { display:flex; justify-content:space-between; gap:16px; padding:12px 0; border-bottom:1px solid var(--line); font-size:.95rem; }
   .facts span { color:var(--dim); }
-  @media (max-width:760px) { .about { grid-template-columns:1fr; } }
 
-  .projects { display:grid; grid-template-columns:repeat(3,1fr); gap:20px; }
-  .proj { background:var(--panel); border:1px solid var(--line); border-radius:16px; overflow:hidden; transition:transform .2s,border-color .2s; }
-  .proj:hover { transform:translateY(-4px); border-color:var(--accent); }
-  .proj .img { aspect-ratio:16/10; border-bottom:1px solid var(--line); background:var(--bg); }
+  /* ---------- work: one featured wide card, two below (not identical cards) ---------- */
+  .projects { display:grid; grid-template-columns:1fr 1fr; gap:20px; }
+  .proj { background:var(--card); border:1px solid var(--line); border-radius:20px; overflow:hidden; display:flex; flex-direction:column; }
+  .proj.wide { grid-column:1 / -1; flex-direction:row; }
+  .proj .img { background:var(--paper); border-bottom:1px solid var(--line); aspect-ratio:16/10; }
+  .proj.wide .img { flex:1.1; border-bottom:0; border-right:1px solid var(--line); aspect-ratio:auto; }
   .proj .img svg { width:100%; height:100%; display:block; }
-  .proj .body { padding:20px; }
-  .proj h3 { font:800 1.2rem/1.2 var(--serif); margin:0 0 8px; }
-  .proj p { margin:0 0 14px; color:var(--dim); font-size:.88rem; }
+  .proj .body { padding:24px; flex:1; }
+  .proj h3 { font-size:1.35rem; font-weight:800; margin-bottom:8px; }
+  .proj p { margin:0 0 16px; color:var(--dim); font-size:.95rem; }
   .chips { display:flex; flex-wrap:wrap; gap:6px; }
-  .chips span { font-size:.72rem; border:1px solid var(--line); border-radius:999px; padding:3px 10px; color:var(--dim); }
-  @media (max-width:860px) { .projects { grid-template-columns:1fr; } }
-
-  .skills { display:grid; grid-template-columns:repeat(3,1fr); gap:20px; }
-  .skill { background:var(--panel); border:1px solid var(--line); border-radius:16px; padding:24px; }
-  .skill h3 { font:800 1.1rem var(--serif); margin:0 0 16px; }
-  @media (max-width:860px) { .skills { grid-template-columns:1fr; } }
-
-  .plink { display:inline-block; margin-top:14px; font-size:.82rem; color:var(--accent); text-decoration:none; }
+  .chips span { font-size:.8rem; font-weight:500; border:1px solid var(--line); border-radius:8px; padding:3px 10px; color:var(--dim); background:var(--paper); }
+  .plink { display:inline-block; margin-top:16px; font-weight:600; color:var(--cobalt); text-decoration:none; }
   .plink:hover { text-decoration:underline; }
-  .skill .chips span { font-size:.85rem; padding:7px 14px; color:var(--text); }
+  @media (max-width:720px) { .projects { grid-template-columns:1fr; } .proj.wide { flex-direction:column; } .proj.wide .img { border-right:0; border-bottom:1px solid var(--line); aspect-ratio:16/10; } }
 
-  .tl { list-style:none; margin:0; padding:0 0 0 22px; border-left:1px solid var(--line); }
-  .tl li { position:relative; padding:0 0 32px 12px; }
-  .tl li::before { content:""; position:absolute; left:-29px; top:8px; width:13px; height:13px; border-radius:50%; background:var(--bg); border:2px solid var(--accent); }
-  .tl time { font-size:.78rem; color:var(--accent); }
-  .tl h3 { font:800 1.1rem var(--serif); margin:2px 0 4px; }
-  .tl p { margin:0; color:var(--dim); font-size:.9rem; max-width:60ch; }
+  /* ---------- skills ---------- */
+  .skills { display:grid; gap:0; border-top:1px solid var(--line); }
+  .skill { display:grid; grid-template-columns:130px 1fr; gap:16px; padding:18px 0; border-bottom:1px solid var(--line); align-items:center; }
+  .skill h3 { font-size:1.05rem; font-weight:800; }
+  .skill .chips span { font-size:.9rem; color:var(--ink); background:var(--card); padding:5px 12px; }
 
-  .contact { display:grid; grid-template-columns:1fr 1.2fr; gap:48px; }
+  /* ---------- education: path summary + detailed timeline ---------- */
+  .path { display:flex; flex-wrap:wrap; align-items:center; gap:8px; margin:0 0 36px; font-weight:600; font-size:.9rem; }
+  .path span { background:var(--card); border:1px solid var(--line); border-radius:999px; padding:6px 14px; }
+  .path i { font-style:normal; color:var(--dim); }
+  .path .now { background:var(--cobalt); border-color:var(--cobalt); color:var(--cobalt-ink); }
+
+  .edu { list-style:none; margin:0; padding:0; display:grid; gap:20px; }
+  .edu li { background:var(--card); border:1px solid var(--line); border-radius:20px; padding:26px 28px; display:grid; grid-template-columns:150px 1fr; gap:8px 28px; }
+  .edu li.current { border-color:var(--cobalt); border-width:2px; }
+  .edu .when { font-weight:600; color:var(--dim); font-size:.9rem; }
+  .edu .when b { display:block; color:var(--ink); font:800 1.05rem var(--display); }
+  .edu h3 { font-size:1.3rem; font-weight:800; }
+  .edu .role { color:var(--cobalt); font-weight:600; margin:2px 0 10px; }
+  .edu p { margin:0 0 12px; color:var(--dim); font-size:.95rem; max-width:60ch; }
+  .edu ul { margin:0 0 14px; padding-left:18px; color:var(--dim); font-size:.95rem; }
+  .edu ul li { display:list-item; background:none; border:0; border-radius:0; padding:2px 0; }
+  @media (max-width:640px) { .edu li { grid-template-columns:1fr; } }
+
+  /* ---------- contact ---------- */
+  .contact { display:grid; grid-template-columns:1fr 1.2fr; gap:40px; }
   .contact p { color:var(--dim); margin:0 0 20px; }
   .links { list-style:none; padding:0; margin:0; }
-  .links li { padding:10px 0; border-bottom:1px solid var(--line); font-size:.9rem; }
+  .links li { padding:10px 0; border-bottom:1px solid var(--line); }
   .links span { color:var(--dim); display:inline-block; width:90px; }
-  form { background:var(--panel); border:1px solid var(--line); border-radius:16px; padding:24px; }
-  label { display:block; font-size:.78rem; color:var(--dim); margin:0 0 6px; }
-  input, textarea { width:100%; font:inherit; color:var(--text); background:var(--bg); border:1px solid var(--line); border-radius:10px; padding:12px 14px; margin:0 0 18px; }
-  input:focus, textarea:focus { outline:none; border-color:var(--accent); }
+  form { background:var(--card); border:1px solid var(--line); border-radius:20px; padding:26px; }
+  label { display:block; font-size:.85rem; font-weight:600; margin:0 0 6px; }
+  input, textarea { width:100%; font:inherit; color:var(--ink); background:var(--paper); border:1px solid var(--line); border-radius:10px; padding:12px 14px; margin:0 0 18px; }
+  input:focus, textarea:focus { outline:none; border-color:var(--cobalt); }
   textarea { min-height:130px; resize:vertical; }
-  #status { margin:14px 0 0; min-height:1.65em; font-size:.88rem; }
-  #status.ok { color:#3ddc84; }
-  #status.err { color:#ff6b6b; }
+  #status { margin:14px 0 0; min-height:1.7em; font-size:.92rem; font-weight:500; }
+  #status.ok { color:var(--ok); } #status.err { color:var(--err); }
   @media (max-width:760px) { .contact { grid-template-columns:1fr; } }
 
-  footer { margin-top:96px; padding:28px 0; border-top:1px solid var(--line); color:var(--dim); font-size:.8rem; }
-  footer .wrap { display:flex; justify-content:space-between; flex-wrap:wrap; gap:8px; }
-  @media (prefers-reduced-motion: reduce) { * { transition:none !important; scroll-behavior:auto !important; } }
+  footer { padding:24px 0 40px; border-top:1px solid var(--line); color:var(--dim); font-size:.88rem; display:flex; justify-content:space-between; flex-wrap:wrap; gap:8px; }
+
+  /* ---------- responsive: rail collapses into a top block ---------- */
+  @media (max-width:960px) {
+    .shell { grid-template-columns:1fr; gap:0; }
+    .rail { position:static; height:auto; padding:28px 0 8px; display:grid; grid-template-columns:150px 1fr; gap:18px 22px; align-items:end; }
+    .rail nav { grid-column:1 / -1; flex-direction:row; flex-wrap:wrap; gap:6px 16px; }
+    .rail nav a { border-left:0; padding:4px 0; border-bottom:2px solid var(--line); }
+    .rail .avail { display:none; }
+    .content { padding-top:24px; }
+  }
+  @media (prefers-reduced-motion: reduce) { html { scroll-behavior:auto; } }
 </style>
 </head>
 <body>
+<div class="shell" id="top">
 
-<header class="bar">
-  <div class="wrap">
-    <a class="logo" href="#top">Francisco Nicolai <b>Lim</b></a>
-    <nav>
+  <!-- ===== identity rail ===== -->
+  <aside class="rail">
+    <div class="photo">
+      <span class="initials" aria-hidden="true">FL</span>
+      <!-- Save your picture as photo.jpg in the same folder as this file. Change the src if you use another name/format. -->
+      <img src="photo.jpg" alt="Portrait of Francisco Nicolai Lim" onerror="this.hidden=true">
+    </div>
+    <div class="who">
+      <h1>Francisco Nicolai Lim</h1>
+      <p>IT student &amp; web developer</p>
+    </div>
+    <nav aria-label="Sections">
       <a href="#about">About</a><a href="#work">Work</a><a href="#skills">Skills</a><a href="#education">Education</a><a href="#contact">Contact</a>
     </nav>
-  </div>
-</header>
+    <div class="avail">Open to projects</div>
+  </aside>
 
-<main class="wrap" id="top">
+  <main class="content">
 
-  <div class="hero">
-    <div>
-      <p class="eyebrow">IT Student · Web Developer</p>
-      <h1>I build <em>web apps</em> from front end to database.</h1>
-      <p class="lead">An IT student working with HTML, CSS, JavaScript, Java, PHP, and MongoDB. I like building complete apps where the interface, the server, and the data all work together.</p>
+    <div class="intro">
+      <h1>Web apps, from the screen to the database.</h1>
+      <p>I'm an IT student building complete apps in HTML, CSS, JavaScript, Java, PHP, and MongoDB, where the interface, the server, and the data all work together.</p>
       <div class="cta">
         <a class="btn primary" href="#contact">Send a message</a>
         <a class="btn" href="#work">See my work</a>
       </div>
     </div>
-    <div class="portrait">
-      <svg viewBox="0 0 400 400" role="img" aria-label="Illustration of a blackbird perched on a wire">
-        <rect width="400" height="400" fill="#17171b"/>
-        <circle cx="300" cy="100" r="54" fill="#ffb000" opacity=".9"/>
-        <circle cx="300" cy="100" r="80" fill="none" stroke="#ffb000" opacity=".25"/>
-        <path d="M0 290 Q200 262 400 290" stroke="#6b675d" stroke-width="3" fill="none"/>
-        <g transform="translate(120 130)">
-          <ellipse cx="80" cy="95" rx="70" ry="48" fill="#050506"/>
-          <circle cx="152" cy="62" r="30" fill="#050506"/>
-          <path d="M178 58 L212 68 L178 76 Z" fill="#ffb000"/>
-          <circle cx="160" cy="56" r="4" fill="#f1ece2"/>
-          <path d="M20 100 L-30 150 L40 128 Z" fill="#050506"/>
-          <path d="M70 90 Q110 110 60 135 Q40 110 70 90Z" fill="#1d1d22"/>
-          <path d="M92 138 L92 160 M110 136 L110 160" stroke="#ffb000" stroke-width="4" stroke-linecap="round"/>
-        </g>
-      </svg>
-      <span class="badge">Open to projects</span>
-    </div>
-  </div>
 
-  <div class="stats">
-    <div><strong>10</strong><span>core technologies</span></div>
-    <div><strong>3</strong><span>layers: front end, back end, data</span></div>
-    <div><strong>3</strong><span>featured projects</span></div>
-    <div><strong>24h</strong><span>typical reply time</span></div>
-  </div>
-
-  <section id="about">
-    <p class="eyebrow">01 / about</p>
-    <h2>Curious about how things actually work.</h2>
-    <div class="about">
-      <div>
-        <p>I’m Francisco Nicolai Lim, an Information Technology student who builds websites and web apps, from the page a user sees to the database behind it.</p>
-        <p>I write the front end in HTML, CSS, and JavaScript, handle server logic with PHP and Java, exchange data as JSON through REST APIs, and store it in MongoDB. I run and test locally with XAMPP, and deploy my APIs on Vercel.</p>
-        <p>Outside of class, I build small complete projects, like a nail business website, a game design project, and a student database app, to understand how every layer fits together.</p>
-      </div>
+    <section id="about" class="about">
+      <h2><span>About</span></h2>
+      <p>I'm Francisco Nicolai Lim, an Information Technology student who builds websites and web apps, from the page a user sees to the database behind it.</p>
+      <p>I write the front end in HTML, CSS, and JavaScript, handle server logic with PHP and Java, exchange data as JSON through REST APIs, and store it in MongoDB. I run and test locally with XAMPP and deploy my APIs on Vercel.</p>
+      <p>Outside of class, I build small complete projects, like a nail business website, a game design project, and a student database app, to understand how every layer fits together.</p>
       <ul class="facts">
-        <li><span>Name</span>Francisco Nicolai Lim</li>
         <li><span>Focus</span>Web + full stack</li>
         <li><span>Languages</span>HTML, CSS, JS, Java, PHP</li>
         <li><span>Tools</span>XAMPP, MongoDB, Vercel</li>
-        <li><span>Status</span>Available</li>
+        <li><span>School</span>Perpetual (IT)</li>
       </ul>
-    </div>
-  </section>
+    </section>
 
-  <section id="work">
-    <p class="eyebrow">02 / work</p>
-    <h2>Selected projects</h2>
-    <div class="projects">
+    <section id="work">
+      <h2><span>Selected work</span></h2>
+      <div class="projects">
 
-      <article class="proj">
-        <div class="img">
-          <svg viewBox="0 0 320 200" aria-hidden="true">
-            <rect x="0" y="0" width="320" height="200" fill="#141427"/>
-            <g fill="#26262c"><rect x="30" y="140" width="90" height="14"/><rect x="150" y="110" width="70" height="14"/><rect x="240" y="80" width="60" height="14"/></g>
-            <rect x="0" y="170" width="320" height="30" fill="#26262c"/>
-            <g><rect x="52" y="112" width="20" height="28" fill="#ffb000"/><rect x="56" y="118" width="4" height="4" fill="#0b0b0d"/><rect x="64" y="118" width="4" height="4" fill="#0b0b0d"/></g>
-            <circle cx="185" cy="92" r="8" fill="#3ddc84"/><circle cx="270" cy="62" r="8" fill="#3ddc84"/>
-            <text x="16" y="24" fill="#f1ece2" font-size="11" font-family="monospace">SCORE 0420</text>
-            <text x="250" y="24" fill="#ff6b6b" font-size="11" font-family="monospace">♥ ♥ ♥</text>
-          </svg>
-        </div>
-        <div class="body">
-          <h3>Game design</h3>
-          <p>A game project covering the concept, mechanics, level layout, and a playable prototype.</p>
-          <div class="chips"><span>Game design</span><span>Prototype</span><span>JavaScript</span></div>
-          <a class="plink" href="#">View project →</a>
-        </div>
-      </article>
+        <!-- featured: student database (the full-stack one) -->
+        <article class="proj wide">
+          <div class="img">
+            <svg viewBox="0 0 320 200" aria-hidden="true" preserveAspectRatio="xMidYMid slice">
+              <rect width="320" height="200" fill="#eef2f8"/>
+              <g stroke="#d9e0ee"><path d="M0 40H320M0 80H320M0 120H320M0 160H320M40 0V200M80 0V200M120 0V200M160 0V200M200 0V200M240 0V200M280 0V200"/></g>
+              <rect x="40" y="26" width="240" height="60" rx="4" fill="#fff" stroke="#dfe6f3"/><rect x="62" y="26" width="2" height="60" fill="#e5484d"/>
+              <rect x="74" y="40" width="90" height="8" rx="2" fill="#1a2748"/><rect x="74" y="58" width="140" height="6" rx="2" fill="#55638a" opacity=".5"/><rect x="244" y="32" width="28" height="14" rx="2" fill="#ffd23f"/>
+              <rect x="40" y="100" width="240" height="60" rx="4" fill="#fff" stroke="#dfe6f3"/><rect x="62" y="100" width="2" height="60" fill="#e5484d"/>
+              <rect x="74" y="114" width="70" height="8" rx="2" fill="#1a2748"/><rect x="74" y="132" width="120" height="6" rx="2" fill="#55638a" opacity=".5"/><rect x="244" y="106" width="28" height="14" rx="2" fill="#ffd23f"/>
+            </svg>
+          </div>
+          <div class="body">
+            <h3>Student database</h3>
+            <p>A records app to add, search, and delete entries. A JavaScript front end talks to a REST API on Vercel, which stores the data in MongoDB.</p>
+            <div class="chips"><span>JavaScript</span><span>REST API</span><span>MongoDB</span><span>Vercel</span></div>
+            <a class="plink" href="#">View project</a> <!-- TODO: real project link -->
+          </div>
+        </article>
 
-      <article class="proj">
-        <div class="img">
-          <svg viewBox="0 0 320 200" aria-hidden="true">
-            <rect width="320" height="200" fill="#eef2f8"/>
-            <g stroke="#d9e0ee"><path d="M0 40H320M0 80H320M0 120H320M0 160H320M40 0V200M80 0V200M120 0V200M160 0V200M200 0V200M240 0V200M280 0V200"/></g>
-            <rect x="40" y="26" width="240" height="60" rx="4" fill="#fff" stroke="#dfe6f3"/>
-            <rect x="62" y="26" width="2" height="60" fill="#e5484d"/>
-            <rect x="74" y="40" width="90" height="8" rx="2" fill="#1a2748"/>
-            <rect x="74" y="58" width="140" height="6" rx="2" fill="#55638a" opacity=".5"/>
-            <rect x="244" y="32" width="28" height="14" rx="2" fill="#ffd23f"/>
-            <rect x="40" y="100" width="240" height="60" rx="4" fill="#fff" stroke="#dfe6f3"/>
-            <rect x="62" y="100" width="2" height="60" fill="#e5484d"/>
-            <rect x="74" y="114" width="70" height="8" rx="2" fill="#1a2748"/>
-            <rect x="74" y="132" width="120" height="6" rx="2" fill="#55638a" opacity=".5"/>
-            <rect x="244" y="106" width="28" height="14" rx="2" fill="#ffd23f"/>
-          </svg>
-        </div>
-        <div class="body">
-          <h3>Student database</h3>
-          <p>A records app to add, search, and delete entries. A JavaScript front end talks to a REST API on Vercel, which stores the data in MongoDB.</p>
-          <div class="chips"><span>JavaScript</span><span>REST API</span><span>MongoDB</span><span>Vercel</span></div>
-          <a class="plink" href="#">View project →</a>
-        </div>
-      </article>
+        <article class="proj">
+          <div class="img">
+            <svg viewBox="0 0 320 200" aria-hidden="true">
+              <rect width="320" height="200" fill="#141427"/>
+              <g fill="#26262c"><rect x="30" y="140" width="90" height="14"/><rect x="150" y="110" width="70" height="14"/><rect x="240" y="80" width="60" height="14"/></g>
+              <rect y="170" width="320" height="30" fill="#26262c"/>
+              <rect x="52" y="112" width="20" height="28" fill="#ffb000"/><rect x="56" y="118" width="4" height="4" fill="#0b0b0d"/><rect x="64" y="118" width="4" height="4" fill="#0b0b0d"/>
+              <circle cx="185" cy="92" r="8" fill="#3ddc84"/><circle cx="270" cy="62" r="8" fill="#3ddc84"/>
+              <text x="16" y="24" fill="#f1ece2" font-size="11" font-family="monospace">SCORE 0420</text>
+            </svg>
+          </div>
+          <div class="body">
+            <h3>Game design</h3>
+            <p>A game project covering the concept, mechanics, level layout, and a playable prototype.</p>
+            <div class="chips"><span>Game design</span><span>Prototype</span><span>JavaScript</span></div>
+            <a class="plink" href="#">View project</a>
+          </div>
+        </article>
 
-      <article class="proj">
-        <div class="img">
-          <svg viewBox="0 0 320 200" aria-hidden="true">
-            <rect x="30" y="20" width="260" height="160" rx="8" fill="#17171b" stroke="#26262c"/>
-            <rect x="30" y="20" width="260" height="22" rx="8" fill="#26262c"/>
-            <text x="46" y="35" fill="#ff8fb8" font-size="11" font-family="monospace">NailsByRiz</text>
-            <rect x="46" y="62" width="110" height="10" rx="3" fill="#f1ece2"/>
-            <rect x="46" y="80" width="80" height="8" rx="3" fill="#26262c"/>
-            <rect x="46" y="104" width="64" height="22" rx="11" fill="#ff8fb8"/>
-            <g>
-              <rect x="190" y="70" width="14" height="30" rx="3" fill="#ff8fb8"/><rect x="192" y="60" width="10" height="10" fill="#9a968c"/>
-              <rect x="214" y="78" width="14" height="30" rx="3" fill="#ffb000"/><rect x="216" y="68" width="10" height="10" fill="#9a968c"/>
-              <rect x="238" y="70" width="14" height="30" rx="3" fill="#c792ea"/><rect x="240" y="60" width="10" height="10" fill="#9a968c"/>
-            </g>
-            <g fill="#26262c"><rect x="46" y="146" width="60" height="22" rx="4"/><rect x="116" y="146" width="60" height="22" rx="4"/><rect x="186" y="146" width="60" height="22" rx="4"/></g>
-          </svg>
-        </div>
-        <div class="body">
-          <h3>NailsByRiz website</h3>
-          <p>Website for a nail business, showcasing services and designs, with an easy way for clients to get in touch.</p>
-          <div class="chips"><span>HTML</span><span>CSS</span><span>JavaScript</span></div>
-          <a class="plink" href="#">View project →</a>
-        </div>
-      </article>
-    </div>
-  </section>
-
-  <section id="skills">
-    <p class="eyebrow">03 / skills</p>
-    <h2>What I work with</h2>
-    <div class="skills">
-      <div class="skill">
-        <h3>Front end</h3>
-        <div class="chips"><span>HTML</span><span>CSS</span><span>JavaScript</span><span>Fetch API</span></div>
+        <article class="proj">
+          <div class="img">
+            <svg viewBox="0 0 320 200" aria-hidden="true">
+              <rect width="320" height="200" fill="#fdf0f5"/>
+              <rect x="30" y="20" width="260" height="160" rx="8" fill="#fff" stroke="#f1cfdc"/>
+              <rect x="30" y="20" width="260" height="22" rx="8" fill="#f8d9e6"/>
+              <text x="46" y="35" fill="#b03a6b" font-size="11" font-family="monospace">NailsByRiz</text>
+              <rect x="46" y="62" width="110" height="10" rx="3" fill="#2a1a22"/><rect x="46" y="80" width="80" height="8" rx="3" fill="#f1cfdc"/>
+              <rect x="46" y="104" width="64" height="22" rx="11" fill="#ff8fb8"/>
+              <rect x="190" y="70" width="14" height="30" rx="3" fill="#ff8fb8"/><rect x="214" y="78" width="14" height="30" rx="3" fill="#ffb000"/><rect x="238" y="70" width="14" height="30" rx="3" fill="#c792ea"/>
+            </svg>
+          </div>
+          <div class="body">
+            <h3>NailsByRiz website</h3>
+            <p>Website for a nail business, showcasing services and designs, with an easy way for clients to get in touch.</p>
+            <div class="chips"><span>HTML</span><span>CSS</span><span>JavaScript</span></div>
+            <a class="plink" href="#">View project</a>
+          </div>
+        </article>
       </div>
-      <div class="skill">
-        <h3>Back end</h3>
-        <div class="chips"><span>Java</span><span>PHP</span><span>XAMPP</span><span>Vercel</span></div>
-      </div>
-      <div class="skill">
-        <h3>Data</h3>
-        <div class="chips"><span>JSON</span><span>MongoDB</span><span>REST API</span></div>
-      </div>
-    </div>
-  </section>
+    </section>
 
-  <section id="education">
-    <p class="eyebrow">04 / education</p>
-    <h2>Where I’ve studied</h2>
-    <ul class="tl">
-      <li><time>Present</time><h3>College — Information Technology</h3><p>Perpetual. Studying IT while building web, software, and database projects on the side.</p></li>
-      <li><time>Senior high school</time><h3>Perpetual</h3><p>Senior high school years that led straight into college at the same school.</p></li>
-      <li><time>Elementary to high school</time><h3>Marella Christianne Institute</h3><p>Completed elementary and high school here, where the foundation for everything else was built.</p></li>
-    </ul>
-  </section>
-
-  <section id="contact">
-    <p class="eyebrow">05 / contact</p>
-    <h2>Let’s build something.</h2>
-    <div class="contact">
-      <div>
-        <p>Have a project, a question, or just want to say hi? Send a message and I’ll get back to you.</p>
-        <ul class="links">
-          <li><span>Email</span>you@example.com</li>
-          <li><span>GitHub</span>github.com/your-handle</li>
-          <li><span>Reply time</span>Within a day</li>
-        </ul>
+    <section id="skills">
+      <h2><span>Skills</span></h2>
+      <div class="skills">
+        <div class="skill"><h3>Front end</h3><div class="chips"><span>HTML</span><span>CSS</span><span>JavaScript</span><span>Fetch API</span></div></div>
+        <div class="skill"><h3>Back end</h3><div class="chips"><span>Java</span><span>PHP</span><span>XAMPP</span><span>Vercel</span></div></div>
+        <div class="skill"><h3>Data</h3><div class="chips"><span>JSON</span><span>MongoDB</span><span>REST API</span></div></div>
       </div>
-      <form id="msgForm">
-        <label for="name">Name</label>
-        <input type="text" id="name" autocomplete="name" required>
-        <label for="email">Email</label>
-        <input type="email" id="email" autocomplete="email" required>
-        <label for="message">Message</label>
-        <textarea id="message" required></textarea>
-        <button class="btn primary" type="submit" id="sendBtn">Send message</button>
-        <p id="status" role="status" aria-live="polite"></p>
-      </form>
-    </div>
-  </section>
-</main>
+    </section>
 
-<footer>
-  <div class="wrap"><span>© <span id="year"></span> Francisco Nicolai Lim</span><a href="#top">Back to top ↑</a></div>
-</footer>
+    <section id="education">
+      <h2><span>Education</span></h2>
+
+      <!-- quick path summary -->
+      <div class="path" aria-label="Education path">
+        <span>Marella Christianne Institute</span><i>→</i><span>Perpetual, Senior High</span><i>→</i><span class="now">Perpetual, College IT</span>
+      </div>
+
+      <ol class="edu" style="list-style:none">
+        <li class="current">
+          <div class="when"><b>Present</b>College</div>
+          <div>
+            <h3>Perpetual</h3>
+            <div class="role">Information Technology</div>
+            <p>Currently studying IT, with coursework across programming, databases, and hardware, and building web projects alongside it.</p>
+            <ul>
+              <li>Programming in Java and PHP; web development in HTML, CSS, and JavaScript</li>
+              <li>Database work with MongoDB and REST APIs</li>
+              <li>Projects built outside class: Student database, NailsByRiz website, game design prototype</li>
+            </ul>
+            <div class="chips"><span>Java</span><span>PHP</span><span>MongoDB</span><span>Web development</span></div>
+            <!-- ADD: expected graduation year, program title (e.g. BS Information Technology), honors, thesis/capstone -->
+          </div>
+        </li>
+
+        <li>
+          <div class="when"><b>Senior high school</b>Perpetual</div>
+          <div>
+            <h3>Perpetual</h3>
+            <div class="role">Senior High School</div>
+            <p>Finished senior high at the same school where I'm now in college, which led straight into my IT degree.</p>
+            <!-- ADD: strand/track (e.g. ICT), years attended, honors, notable projects -->
+          </div>
+        </li>
+
+        <li>
+          <div class="when"><b>Elementary to high school</b>Basic education</div>
+          <div>
+            <h3>Marella Christianne Institute</h3>
+            <div class="role">Elementary and High School</div>
+            <p>Completed elementary and high school here, where the foundation for everything else was built.</p>
+            <!-- ADD: years attended, awards, clubs/activities -->
+          </div>
+        </li>
+      </ol>
+    </section>
+
+    <section id="contact">
+      <h2><span>Contact</span></h2>
+      <div class="contact">
+        <div>
+          <p>Have a project, a question, or just want to say hi? Send a message and I'll get back to you within a day.</p>
+          <ul class="links">
+            <li><span>Email</span>you@example.com</li> <!-- TODO: real email -->
+            <li><span>GitHub</span>github.com/your-handle</li> <!-- TODO: real handle -->
+          </ul>
+        </div>
+        <form id="msgForm">
+          <label for="name">Name</label>
+          <input type="text" id="name" autocomplete="name" required>
+          <label for="email">Email</label>
+          <input type="email" id="email" autocomplete="email" required>
+          <label for="message">Message</label>
+          <textarea id="message" required></textarea>
+          <button class="btn primary" type="submit" id="sendBtn">Send message</button>
+          <p id="status" role="status" aria-live="polite"></p>
+        </form>
+      </div>
+    </section>
+
+    <footer>
+      <span>© <span id="year"></span> Francisco Nicolai Lim</span><a href="#top">Back to top</a>
+    </footer>
+  </main>
+</div>
 
 <script>
   const API_URL = 'https://student-api-backend-chi.vercel.app/api';
@@ -345,11 +361,18 @@
       form.reset();
       say('Message sent. Thanks!', 'ok');
     } catch (err) {
-      say('Couldn’t send the message. Try again.', 'err');
+      say('Couldn’t send the message. Check your connection and try again.', 'err');
     } finally {
       btn.disabled = false; btn.textContent = 'Send message';
     }
   });
+
+  // highlight current section in the rail nav
+  const links = [...document.querySelectorAll('.rail nav a')];
+  const io = new IntersectionObserver(es => es.forEach(en => {
+    if (en.isIntersecting) links.forEach(l => l.classList.toggle('on', l.hash === '#' + en.target.id));
+  }), { rootMargin: '-40% 0px -55% 0px' });
+  document.querySelectorAll('main section').forEach(s => io.observe(s));
 </script>
 </body>
 </html>
