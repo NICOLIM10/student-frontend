@@ -196,7 +196,16 @@
         statusCell.textContent = record.status ?? 'N/A';
         statusCell.className = 'status';
 
-        row.append(nameCell, dateCell, statusCell);
+        const delCell = document.createElement('td');
+        const delBtn = document.createElement('button');
+        delBtn.textContent = 'Delete';
+        delBtn.addEventListener('click', async () => {
+          await fetch(`${API}?id=${record._id}`, { method: 'DELETE' });
+          await loadAttendance();
+        });
+        delCell.appendChild(delBtn);
+
+        row.append(nameCell, dateCell, statusCell, delCell);
         tbody.appendChild(row);
       });
 
