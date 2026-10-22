@@ -120,6 +120,7 @@
         placeholder="Search name, date, or status..."
       >
       <button id="refreshButton" type="button">Refresh</button>
+      <button id="addButton" type="button">Add</button>
     </div>
 
     <div id="count" class="count">Loading records...</div>
@@ -196,14 +197,26 @@
         statusCell.textContent = record.status ?? 'N/A';
         statusCell.className = 'status';
 
-        const delCell = document.createElement('td');
+        const editBtn = document.createElement('button');
+        editBtn.textContent = 'Edit';
+        editBtn.addEventListener('click', async () => {
+          const newStatus = prompt('New status:', record.status);
+          if (newStatus === null) return;
+          await fetch(`${API}?id=${record._id}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ status: newStatus })
+          });
+          await loadAttendance();
+        });
+
         const delBtn = document.createElement('button');
         delBtn.textContent = 'Delete';
         delBtn.addEventListener('click', async () => {
           await fetch(`${API}?id=${record._id}`, { method: 'DELETE' });
           await loadAttendance();
         });
-        delCell.appendChild(delBtn);
+        delCell.append(editBtn, delBtn);
 
         row.append(nameCell, dateCell, statusCell, delCell);
         tbody.appendChild(row);
@@ -273,6 +286,22 @@
 
     searchInput.addEventListener('input', renderRecords);
     refreshButton.addEventListener('click', loadAttendance);
+    const addButton = document.getElementById('addButton');
+    addButton.addEventListener('click', async () => {
+      const student_name = prompt('Student name:');
+      if (!student_name) return;
+      const student_id = prompt('Student ID:') || '';
+      const subject_name = prompt('Subject:') || '';
+      const section = prompt('Section:') || '';
+      const status = prompt('Status (Present/Absent/Late):') || 'Present';
+      const date = new Date().toISOString();
+      await fetch(API, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ student_name, student_id, subject_name, section, date, status })
+      });
+      await loadAttendance();
+    });
 
     loadAttendance();
   </script>
