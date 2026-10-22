@@ -171,10 +171,13 @@
 
       const filtered = attendanceRecords.filter(record => {
         const name = String(record.student_name ?? '');
+        const id = String(record.student_id ?? '');
+        const subject = String(record.subject_name ?? '');
+        const section = String(record.section ?? '');
         const date = getDate(record.date);
         const status = String(record.status ?? '');
 
-        return `${name} ${date} ${status}`
+        return `${name} ${id} ${subject} ${section} ${date} ${status}`
           .toLowerCase()
           .includes(searchTerm);
       });
