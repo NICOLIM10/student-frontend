@@ -188,7 +188,7 @@
         const dateCell = document.createElement('td');
         const statusCell = document.createElement('td');
 
-        nameCell.textContent = record.name ?? 'N/A';
+        nameCell.textContent = record.student_name ?? 'N/A';
         dateCell.textContent = getDate(record.date) || 'N/A';
         statusCell.textContent = record.status ?? 'N/A';
         statusCell.className = 'status';
