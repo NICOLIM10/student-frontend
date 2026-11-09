@@ -504,7 +504,7 @@ tbody tr:last-child td{border-bottom:0}
       tbody.appendChild(row);
     });
 
-    count.textContent = `${filtered.length} displayed · ${attendanceRecords.length} total records`;
+count.textContent = `${filtered.length} displayed · ${attendanceRecords.length} total records`;
     message.classList.toggle('hidden', filtered.length > 0);
 
     if (filtered.length === 0) {
@@ -515,9 +515,13 @@ tbody tr:last-child td{border-bottom:0}
       const text = document.createElement('div');
       text.textContent = attendanceRecords.length === 0
         ? 'No attendance records found. Add your first record.'
-        : 'No records match your search or status filter.';
+        : 'No records match your search or filter.';
       message.append(icon, text);
     }
+
+    updateStatistics();
+    updateAuthUI();
+  }
 
     updateStatistics();
   }
