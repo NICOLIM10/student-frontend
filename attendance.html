@@ -317,12 +317,16 @@ tbody tr:last-child td{border-bottom:0}
     const addBtn = $('addButton');
     const editButtons = document.querySelectorAll('.icon-btn:not(.delete-btn)');
     const deleteButtons = document.querySelectorAll('.delete-btn');
+    const actionsHeader = document.querySelector('th:last-child');
+    const actionsCells = document.querySelectorAll('td:last-child');
     
     if (loginBtn) loginBtn.style.display = isAdmin ? 'none' : 'inline-flex';
     if (logoutBtn) logoutBtn.style.display = isAdmin ? 'inline-flex' : 'none';
     if (addBtn) addBtn.style.display = isAdmin ? 'inline-flex' : 'none';
     editButtons.forEach(btn => btn.style.display = isAdmin ? 'inline-flex' : 'none');
     deleteButtons.forEach(btn => btn.style.display = isAdmin ? 'inline-flex' : 'none');
+    if (actionsHeader) actionsHeader.style.display = isAdmin ? '' : 'none';
+    actionsCells.forEach(cell => cell.style.display = isAdmin ? '' : 'none');
   }
 
   const $ = id => document.getElementById(id);
@@ -504,7 +508,7 @@ tbody tr:last-child td{border-bottom:0}
       tbody.appendChild(row);
     });
 
-count.textContent = `${filtered.length} displayed · ${attendanceRecords.length} total records`;
+    count.textContent = `${filtered.length} displayed · ${attendanceRecords.length} total records`;
     message.classList.toggle('hidden', filtered.length > 0);
 
     if (filtered.length === 0) {
@@ -515,13 +519,9 @@ count.textContent = `${filtered.length} displayed · ${attendanceRecords.length}
       const text = document.createElement('div');
       text.textContent = attendanceRecords.length === 0
         ? 'No attendance records found. Add your first record.'
-        : 'No records match your search or filter.';
+        : 'No records match your search or status filter.';
       message.append(icon, text);
     }
-
-    updateStatistics();
-    updateAuthUI();
-  }
 
     updateStatistics();
   }
