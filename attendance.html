@@ -320,9 +320,9 @@ tbody tr:last-child td{border-bottom:0}
     
     if (loginBtn) loginBtn.style.display = isAdmin ? 'none' : 'inline-flex';
     if (logoutBtn) logoutBtn.style.display = isAdmin ? 'inline-flex' : 'none';
-    if (addBtn) addBtn.disabled = !isAdmin;
-    editButtons.forEach(btn => btn.disabled = !isAdmin);
-    deleteButtons.forEach(btn => btn.disabled = !isAdmin);
+    if (addBtn) addBtn.style.display = isAdmin ? 'inline-flex' : 'none';
+    editButtons.forEach(btn => btn.style.display = isAdmin ? 'inline-flex' : 'none');
+    deleteButtons.forEach(btn => btn.style.display = isAdmin ? 'inline-flex' : 'none');
   }
 
   const $ = id => document.getElementById(id);
