@@ -166,6 +166,7 @@ tbody tr:last-child td{border-bottom:0}
 
     <div class="topbar-right">
       <a class="home-link" href="index.html">← Home</a>
+      <button class="btn" id="logoutButton" type="button">Logout</button>
       <div class="live">MongoDB Attendance</div>
     </div>
   </header>
@@ -285,6 +286,62 @@ tbody tr:last-child td{border-bottom:0}
 <script>
   // Replace this only if your deployed API URL is different.
   const API = 'https://student-api-backend-chi.vercel.app/api/attendance';
+
+  const ADMIN_CREDENTIALS = {
+    username: 'admin',
+    password: 'uphsd2024'
+  };
+
+  function checkAuth() {
+    return sessionStorage.getItem('attendify_admin') === 'true';
+  }
+
+  function login(username, password) {
+    if (username === ADMIN_CREDENTIALS.username && password === ADMIN_CREDENTIALS.password) {
+      sessionStorage.setItem('attendify_admin', 'true');
+      return true;
+    }
+    return false;
+  }
+
+  function logout() {
+    sessionStorage.removeItem('attendify_admin');
+    location.reload();
+  }
+
+  if (!checkAuth()) {
+    document.body.innerHTML = `
+      <div style="display:flex;align-items:center;justify-content:center;min-height:100vh;background:#050505;font-family:Inter,sans-serif;color:#f4f1ef">
+        <div style="background:#0a0a0a;border:1px solid #1f1f1f;padding:40px;border-radius:4px;max-width:400px;width:90%">
+          <h2 style="font-family:'Anton',sans-serif;color:#ff2a33;margin:0 0 8px">Attendify Admin</h2>
+          <p style="color:#8d8888;margin:0 0 24px">Sign in to manage attendance records</p>
+          <form id="loginForm">
+            <div style="margin-bottom:16px">
+              <label style="display:block;margin-bottom:6px;font-size:11px;text-transform:uppercase;letter-spacing:.1em;color:#ff2a33">Username</label>
+              <input type="text" id="username" required style="width:100%;padding:12px;border:1px solid #2c2c2c;background:#050505;color:#f4f1ef;font:inherit;border-radius:0">
+            </div>
+            <div style="margin-bottom:20px">
+              <label style="display:block;margin-bottom:6px;font-size:11px;text-transform:uppercase;letter-spacing:.1em;color:#ff2a33">Password</label>
+              <input type="password" id="password" required style="width:100%;padding:12px;border:1px solid #2c2c2c;background:#050505;color:#f4f1ef;font:inherit;border-radius:0">
+            </div>
+            <button type="submit" style="width:100%;padding:12px;background:#d4141c;border:1px solid #d4141c;color:#fff;font:inherit;font-weight:600;text-transform:uppercase;letter-spacing:.1em;cursor:pointer">Sign In</button>
+            <p id="loginError" style="color:#ff2a33;margin:12px 0 0;font-size:13px;display:none">Invalid credentials</p>
+          </form>
+        </div>
+      </div>
+    `;
+    document.getElementById('loginForm').addEventListener('submit', e => {
+      e.preventDefault();
+      const u = document.getElementById('username').value;
+      const p = document.getElementById('password').value;
+      if (login(u, p)) {
+        location.reload();
+      } else {
+        document.getElementById('loginError').style.display = 'block';
+      }
+    });
+    throw new Error('Not authenticated');
+  }
 
   const $ = id => document.getElementById(id);
   const tbody = $('attendanceBody');
@@ -527,6 +584,7 @@ tbody tr:last-child td{border-bottom:0}
   $('refreshButton').addEventListener('click', () => loadAttendance());
   $('search').addEventListener('input', renderRecords);
   $('statusFilter').addEventListener('change', renderRecords);
+  $('logoutButton').addEventListener('click', logout);
 
   form.addEventListener('submit', async event => {
     event.preventDefault();
